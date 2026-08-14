@@ -1,0 +1,6 @@
+venv/
+__pycache__/
+*.pyc
+.session_key
+claude_costs.json
+.DS_Store
