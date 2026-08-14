@@ -321,12 +321,36 @@ function renderFrage() {
   `;
 }
 
-function handleFrageSend() {
+async function handleFrageSend() {
   const input = document.getElementById('frage-input');
+  const sendBtn = document.getElementById('frage-send');
   const antwort = document.getElementById('frage-antwort');
-  if (!input.value.trim()) return;
-  antwort.innerHTML = '<p class="muted">Die Frage-Funktion wird in Phase 6 (Claude-API-Backend) angebunden — aktuell noch nicht verfügbar.</p>';
-  input.value = '';
+  const question = input.value.trim();
+  if (!question) return;
+
+  input.disabled = true;
+  sendBtn.disabled = true;
+  antwort.innerHTML = '<p class="muted">Claude denkt nach…</p>';
+
+  try {
+    const res = await fetch('/api/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      antwort.innerHTML = `<p class="muted">${data.error || 'Unerwarteter Fehler.'}</p>`;
+    } else {
+      antwort.innerHTML = renderMarkdown(data.answer);
+      input.value = '';
+    }
+  } catch {
+    antwort.innerHTML = '<p class="muted">Verbindungsfehler — bitte erneut versuchen.</p>';
+  } finally {
+    input.disabled = false;
+    sendBtn.disabled = false;
+  }
 }
 
 /* ---------- Rendering: Fortschritt ---------- */
@@ -430,6 +454,8 @@ function wireEvents() {
 
   const frageSend = document.getElementById('frage-send');
   if (frageSend) frageSend.addEventListener('click', handleFrageSend);
+  const frageInput = document.getElementById('frage-input');
+  if (frageInput) frageInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleFrageSend(); });
 }
 
 /* ---------- Info-Sheet ---------- */
