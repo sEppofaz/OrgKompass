@@ -26,6 +26,8 @@ BASE_DIR = Path(__file__).parent
 STATIC_DIR = BASE_DIR / "static"
 SESSION_KEY_FILE = BASE_DIR / ".session_key"
 
+PREFIX = "/orgkompass"
+
 app = Flask(__name__, static_folder=None)
 
 
@@ -51,69 +53,69 @@ def login_required(view):
     @functools.wraps(view)
     def wrapped(*args, **kwargs):
         if not session.get("authenticated"):
-            return redirect("/login")
+            return redirect(f"{PREFIX}/login")
         return view(*args, **kwargs)
     return wrapped
 
 
 # --- Öffentliche Routen (PWA-Installation vor Login möglich) ---
 
-@app.route("/manifest.json")
+@app.route(f"{PREFIX}/manifest.json")
 def manifest():
     return send_from_directory(STATIC_DIR, "manifest.json")
 
 
-@app.route("/sw.js")
+@app.route(f"{PREFIX}/sw.js")
 def service_worker():
     return send_from_directory(STATIC_DIR, "sw.js")
 
 
-@app.route("/icon-192.png")
-@app.route("/icon-512.png")
-@app.route("/apple-touch-icon.png")
+@app.route(f"{PREFIX}/icon-192.png")
+@app.route(f"{PREFIX}/icon-512.png")
+@app.route(f"{PREFIX}/apple-touch-icon.png")
 def icons():
-    filename = request.path.lstrip("/")
+    filename = request.path.rsplit("/", 1)[-1]
     return send_from_directory(STATIC_DIR, filename)
 
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route(f"{PREFIX}/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         if _check_password(request.form.get("password", "")):
             session.permanent = True
             session["authenticated"] = True
-            return redirect("/")
-        return redirect("/login?error=1")
+            return redirect(f"{PREFIX}/")
+        return redirect(f"{PREFIX}/login?error=1")
     return send_from_directory(STATIC_DIR, "login.html")
 
 
-@app.route("/logout")
+@app.route(f"{PREFIX}/logout")
 def logout():
     session.clear()
-    return redirect("/login")
+    return redirect(f"{PREFIX}/login")
 
 
 # --- Geschützte Routen ---
 
-@app.route("/")
+@app.route(f"{PREFIX}/")
 @login_required
 def index():
     return send_from_directory(STATIC_DIR, "index.html")
 
 
-@app.route("/app.js")
+@app.route(f"{PREFIX}/app.js")
 @login_required
 def app_js():
     return send_from_directory(STATIC_DIR, "app.js")
 
 
-@app.route("/content/<path:filename>")
+@app.route(f"{PREFIX}/content/<path:filename>")
 @login_required
 def content(filename):
     return send_from_directory(STATIC_DIR / "content", filename)
 
 
-@app.route("/api/ask", methods=["POST"])
+@app.route(f"{PREFIX}/api/ask", methods=["POST"])
 @login_required
 def ask():
     data = request.get_json(silent=True) or {}

@@ -333,7 +333,7 @@ async function handleFrageSend() {
   antwort.innerHTML = '<p class="muted">Claude denkt nach…</p>';
 
   try {
-    const res = await fetch('/api/ask', {
+    const res = await fetch('/orgkompass/api/ask', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question }),
@@ -466,7 +466,7 @@ function setupInfoSheet() {
   document.getElementById('info-close').addEventListener('click', () => overlay.classList.remove('open'));
   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
   const logoutBtn = document.getElementById('logout-btn');
-  if (logoutBtn) logoutBtn.addEventListener('click', () => { window.location.href = '/logout'; });
+  if (logoutBtn) logoutBtn.addEventListener('click', () => { window.location.href = '/orgkompass/logout'; });
 }
 
 /* ---------- Scroll-to-Top ---------- */
