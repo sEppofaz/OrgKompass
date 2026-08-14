@@ -1,4 +1,4 @@
-const CACHE_NAME = 'orgkompass-v4';
+const CACHE_NAME = 'orgkompass-v5';
 
 const SHELL = [
   './',
@@ -13,6 +13,8 @@ const SHELL = [
   './content/content-modul-01-grundlagen.js',
   './content/content-modul-02-strukturgestaltung.js',
   './content/content-modul-03-funktionsbewertung.js',
+  './content/content-modul-04-reorganisationsprojekte.js',
+  './content/content-modul-05-analyse-diagnostik.js',
   './content/content-glossar.js',
   './content/content-diagramme.js',
 ];

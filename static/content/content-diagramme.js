@@ -196,3 +196,51 @@ DIAGRAMS['hay-faktoren'] = function () {
     <text x="160" y="147" text-anchor="middle" fill="var(--muted)" font-size="9">→ Job Grade</text>
   </svg>`;
 };
+
+DIAGRAMS['reorg-phasenmodell'] = function () {
+  return `<svg viewBox="0 0 320 215" role="img" aria-label="Phasenmodell einer Reorganisation">
+    <defs>
+      <marker id="arrowphase" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+        <path d="M0,0 L7,3.5 L0,7 z" fill="var(--icon)"/>
+      </marker>
+    </defs>
+    <rect x="70" y="6" width="180" height="26" rx="6" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="160" y="23" text-anchor="middle" fill="var(--text)" font-size="10.5">1. Diagnose</text>
+    <line x1="160" y1="32" x2="160" y2="46" stroke="var(--icon)" stroke-width="1.3" marker-end="url(#arrowphase)"/>
+
+    <rect x="70" y="48" width="180" height="26" rx="6" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="160" y="65" text-anchor="middle" fill="var(--text)" font-size="10.5">2. Zielbild</text>
+    <line x1="160" y1="74" x2="160" y2="88" stroke="var(--icon)" stroke-width="1.3" marker-end="url(#arrowphase)"/>
+
+    <rect x="70" y="90" width="180" height="26" rx="6" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="160" y="107" text-anchor="middle" fill="var(--text)" font-size="10.5">3. Konzeption</text>
+    <line x1="160" y1="116" x2="160" y2="130" stroke="var(--icon)" stroke-width="1.3" marker-end="url(#arrowphase)"/>
+
+    <rect x="70" y="132" width="180" height="26" rx="6" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="160" y="149" text-anchor="middle" fill="var(--text)" font-size="10.5">4. Umsetzung</text>
+    <line x1="160" y1="158" x2="160" y2="172" stroke="var(--icon)" stroke-width="1.3" marker-end="url(#arrowphase)"/>
+
+    <rect x="70" y="174" width="180" height="26" rx="6" fill="var(--bg2)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="160" y="191" text-anchor="middle" fill="var(--text)" font-size="10.5">5. Verankerung</text>
+  </svg>`;
+};
+
+DIAGRAMS['swot-matrix'] = function () {
+  return `<svg viewBox="0 0 320 200" role="img" aria-label="SWOT-Matrix">
+    <rect x="5" y="5" width="150" height="85" rx="8" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="80" y="45" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="600">Stärken</text>
+    <text x="80" y="60" text-anchor="middle" fill="var(--muted)" font-size="9">(intern)</text>
+
+    <rect x="165" y="5" width="150" height="85" rx="8" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="240" y="45" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="600">Schwächen</text>
+    <text x="240" y="60" text-anchor="middle" fill="var(--muted)" font-size="9">(intern)</text>
+
+    <rect x="5" y="100" width="150" height="85" rx="8" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="80" y="140" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="600">Chancen</text>
+    <text x="80" y="155" text-anchor="middle" fill="var(--muted)" font-size="9">(extern)</text>
+
+    <rect x="165" y="100" width="150" height="85" rx="8" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="240" y="140" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="600">Risiken</text>
+    <text x="240" y="155" text-anchor="middle" fill="var(--muted)" font-size="9">(extern)</text>
+  </svg>`;
+};

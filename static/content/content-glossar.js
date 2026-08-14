@@ -141,3 +141,51 @@ GLOSSARY.push({
   modul_ref: 'm03-funktionsbewertung',
   synonyme: ['Vergütungsbenchmarking'],
 });
+
+GLOSSARY.push({
+  term: 'Zielbild',
+  kurz: 'Konkrete Beschreibung, wie eine Organisation nach der Reorganisation arbeiten soll.',
+  erklaerung_markdown: 'Ein tragfähiges **Zielbild** beschreibt konkret, wo künftig Entscheidungen getroffen werden, welche Schnittstellen sich ändern und woran der Erfolg gemessen wird — es beantwortet „Wofür reorganisieren wir?", bevor die Detailstruktur feststeht.',
+  modul_ref: 'm04-reorganisationsprojekte',
+  synonyme: [],
+});
+
+GLOSSARY.push({
+  term: 'Business Case',
+  kurz: 'Begründung einer Reorganisation gegenüber Entscheidungsträgern: Anlass, Effekte, Kosten, Risiken.',
+  erklaerung_markdown: 'Der **Business Case** enthält den Anlass der Reorganisation, erwartete harte und weiche Effekte, die Umsetzungskosten sowie Risiken und Alternativen. Ein belastbarer Business Case benennt beide Effektarten explizit, auch wenn weiche Effekte schwerer zu beziffern sind.',
+  modul_ref: 'm04-reorganisationsprojekte',
+  synonyme: [],
+});
+
+GLOSSARY.push({
+  term: 'Top-Management-Commitment',
+  kurz: 'Sichtbare, verbindliche Unterstützung der Führungsebene für ein Reorganisationsprojekt.',
+  erklaerung_markdown: 'Reorganisationsprojekte scheitern selten an der fachlichen Konzeption, deutlich häufiger an fehlendem oder brüchigem **Top-Management-Commitment**. Erfolgsfaktoren: klar benannter Sponsor, kurze Entscheidungsschleifen, geschlossenes Auftreten nach außen.',
+  modul_ref: 'm04-reorganisationsprojekte',
+  synonyme: [],
+});
+
+GLOSSARY.push({
+  term: 'Ist-Analyse',
+  kurz: 'Erhebung des tatsächlichen Ist-Zustands einer Organisation vor der Zielbild-Entwicklung.',
+  erklaerung_markdown: 'Die **Ist-Analyse** kombiniert harte Daten (Kennzahlen, Organigramm), weiche Daten (Interviews, Befragungen) und Beobachtung. Sie deckt oft Abweichungen zwischen dokumentierter Struktur und gelebter Realität auf.',
+  modul_ref: 'm05-analyse-diagnostik',
+  synonyme: [],
+});
+
+GLOSSARY.push({
+  term: 'Benchmarking',
+  kurz: 'Vergleich der eigenen Organisation mit anderen — extern, funktional oder intern.',
+  erklaerung_markdown: '**Benchmarking** vergleicht die eigene Organisation mit Wettbewerbern (extern), branchenfremden Best-Practice-Organisationen (funktional) oder anderen Konzerneinheiten (intern). Liefert Vergleichswerte, keine automatisch übertragbaren Lösungen.',
+  modul_ref: 'm05-analyse-diagnostik',
+  synonyme: [],
+});
+
+GLOSSARY.push({
+  term: 'SWOT-Analyse',
+  kurz: 'Verdichtungswerkzeug, das Stärken, Schwächen, Chancen und Risiken strukturiert zusammenführt.',
+  erklaerung_markdown: 'Die **SWOT-Analyse** ordnet Befunde in vier Felder: Stärken/Schwächen (intern) und Chancen/Risiken (extern). Ihr Nutzen entsteht erst, wenn die Felder miteinander in Bezug gesetzt werden, nicht bei isolierter Betrachtung.',
+  modul_ref: 'm05-analyse-diagnostik',
+  synonyme: [],
+});
