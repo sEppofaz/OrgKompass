@@ -347,3 +347,44 @@ DIAGRAMS['stakeholder-matrix'] = function () {
     <text x="240" y="153" text-anchor="middle" fill="var(--muted)" font-size="8.5">Macht gering · Interesse gering</text>
   </svg>`;
 };
+
+DIAGRAMS['holokratie-kreise'] = function () {
+  return `<svg viewBox="0 0 320 220" role="img" aria-label="Holokratie: verschachtelte Kreise">
+    <circle cx="160" cy="115" r="98" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="160" y="26" text-anchor="middle" fill="var(--muted)" font-size="9.5">General Company Circle</text>
+
+    <circle cx="160" cy="80" r="38" fill="var(--bg2)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="160" y="84" text-anchor="middle" fill="var(--text)" font-size="10">Produkt</text>
+
+    <circle cx="112" cy="155" r="34" fill="var(--bg2)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="112" y="159" text-anchor="middle" fill="var(--text)" font-size="10">Marketing</text>
+
+    <circle cx="208" cy="155" r="34" fill="var(--bg2)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="208" y="159" text-anchor="middle" fill="var(--text)" font-size="10">Betrieb</text>
+  </svg>`;
+};
+
+DIAGRAMS['spotify-modell'] = function () {
+  return `<svg viewBox="0 0 320 200" role="img" aria-label="Spotify-Modell: Squads, Tribes, Chapters">
+    <text x="15" y="12" fill="var(--muted)" font-size="10" font-weight="600">Tribe A</text>
+    <rect x="15" y="18" width="80" height="46" rx="6" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="55" y="45" text-anchor="middle" fill="var(--text)" font-size="9.5">Squad 1</text>
+    <rect x="115" y="18" width="80" height="46" rx="6" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="155" y="45" text-anchor="middle" fill="var(--text)" font-size="9.5">Squad 2</text>
+    <rect x="215" y="18" width="80" height="46" rx="6" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="255" y="45" text-anchor="middle" fill="var(--text)" font-size="9.5">Squad 3</text>
+
+    <line x1="55" y1="64" x2="55" y2="128" stroke="var(--icon)" stroke-width="1.2" stroke-dasharray="3,3"/>
+    <line x1="155" y1="64" x2="155" y2="128" stroke="var(--icon)" stroke-width="1.2" stroke-dasharray="3,3"/>
+    <line x1="255" y1="64" x2="255" y2="128" stroke="var(--icon)" stroke-width="1.2" stroke-dasharray="3,3"/>
+    <text x="8" y="99" fill="var(--muted)" font-size="8.5">Chapters</text>
+
+    <text x="15" y="122" fill="var(--muted)" font-size="10" font-weight="600">Tribe B</text>
+    <rect x="15" y="128" width="80" height="46" rx="6" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="55" y="155" text-anchor="middle" fill="var(--text)" font-size="9.5">Squad 1</text>
+    <rect x="115" y="128" width="80" height="46" rx="6" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="155" y="155" text-anchor="middle" fill="var(--text)" font-size="9.5">Squad 2</text>
+    <rect x="215" y="128" width="80" height="46" rx="6" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="255" y="155" text-anchor="middle" fill="var(--text)" font-size="9.5">Squad 3</text>
+  </svg>`;
+};

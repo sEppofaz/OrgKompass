@@ -317,3 +317,27 @@ GLOSSARY.push({
   modul_ref: 'm11-international',
   synonyme: [],
 });
+
+GLOSSARY.push({
+  term: 'Holokratie',
+  kurz: 'Organisationsform mit selbstorganisierten, hochformalisierten Kreisen statt klassischer Hierarchie.',
+  erklaerung_markdown: 'Die **Holokratie** ersetzt Hierarchie durch verschachtelte, selbstorganisierte Kreise mit klar abgegrenzten Zuständigkeiten. Hochformalisiert: Rollen und Entscheidungsprozesse sind in einer „Verfassung" schriftlich fixiert.',
+  modul_ref: 'm12-agile-new-work',
+  synonyme: [],
+});
+
+GLOSSARY.push({
+  term: 'Spotify-Modell',
+  kurz: 'Matrixstruktur aus Squads/Tribes (Produkt-Dimension) und Chapters/Guilds (fachliche Dimension).',
+  erklaerung_markdown: 'Das **Spotify-Modell** organisiert Produktentwicklung in Squads (kleine Teams), gebündelt zu Tribes, quer dazu Chapters (fachliche Vernetzung) und Guilds (freiwillige Interessengemeinschaften) — im Kern eine Matrixorganisation.',
+  modul_ref: 'm12-agile-new-work',
+  synonyme: [],
+});
+
+GLOSSARY.push({
+  term: 'New Work',
+  kurz: 'Konzept (Frithjof Bergmann) für sinnstiftende Arbeit — im Unternehmenskontext: Autonomie, Flexibilität, Sinnorientierung.',
+  erklaerung_markdown: '**New Work** wird im Unternehmenskontext meist verstanden als mehr Autonomie/Selbstorganisation, flexiblere Arbeitsformen und stärkere Sinnorientierung. Passt zu bestimmten Kontexten (hoher Innovationsbedarf), kein universeller Ersatz für klassische Strukturen.',
+  modul_ref: 'm12-agile-new-work',
+  synonyme: [],
+});
