@@ -19,10 +19,10 @@ def send_telegram(token: str, chat_id: str, text: str) -> None:
 
 def main():
     secrets_data = load_secrets()
-    token = secrets_data.get("TELEGRAM_TOKEN", "")
-    chat_id = secrets_data.get("TELEGRAM_CHAT_ID", "")
+    token = secrets_data.get("TOKEN", "")
+    chat_id = secrets_data.get("CHAT_ID", "")
     if not (token and chat_id):
-        print("TELEGRAM_TOKEN/TELEGRAM_CHAT_ID nicht konfiguriert.", file=sys.stderr)
+        print("TOKEN/CHAT_ID (Haupt-Telegram-Bot) nicht konfiguriert.", file=sys.stderr)
         return
 
     now = datetime.now().isoformat(timespec="minutes")
