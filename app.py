@@ -11,6 +11,7 @@ import dropbox
 from flask import Flask, jsonify, request, redirect, session, send_from_directory
 
 import costs
+import notizen_store
 from app_secrets import load_secrets
 
 DROPBOX_VERLAUF_PATH = "/Apps/Claude/OrgKompass/fragen-verlauf.md"
@@ -182,6 +183,51 @@ def ask_history():
             })
     entries.reverse()
     return jsonify({"history": entries})
+
+
+@app.route(f"{PREFIX}/api/notizen", methods=["GET", "POST"])
+@login_required
+def notizen():
+    if request.method == "GET":
+        return jsonify({"notizen": notizen_store.list_notizen()})
+
+    data = request.get_json(silent=True) or {}
+    text = (data.get("text") or "").strip()
+    if not text:
+        return jsonify({"error": "Kein Text übermittelt."}), 400
+    if len(text) > 2000:
+        return jsonify({"error": "Text zu lang (max. 2000 Zeichen)."}), 400
+    ist_todo = bool(data.get("ist_todo"))
+    erinnerung = data.get("erinnerung") or None
+    neue = notizen_store.create_notiz(text, ist_todo, erinnerung)
+    return jsonify(neue), 201
+
+
+@app.route(f"{PREFIX}/api/notizen/<notiz_id>", methods=["PUT", "DELETE"])
+@login_required
+def notiz_detail(notiz_id):
+    if request.method == "DELETE":
+        deleted = notizen_store.delete_notiz(notiz_id)
+        if not deleted:
+            return jsonify({"error": "Notiz nicht gefunden."}), 404
+        return jsonify({"ok": True})
+
+    data = request.get_json(silent=True) or {}
+    fields = {}
+    if "erledigt" in data:
+        fields["erledigt"] = bool(data["erledigt"])
+    if "text" in data:
+        text = (data.get("text") or "").strip()
+        if not text or len(text) > 2000:
+            return jsonify({"error": "Ungültiger Text."}), 400
+        fields["text"] = text
+    if "erinnerung" in data:
+        fields["erinnerung"] = data.get("erinnerung") or None
+        fields["erinnerung_gesendet"] = False
+    updated = notizen_store.update_notiz(notiz_id, **fields)
+    if updated is None:
+        return jsonify({"error": "Notiz nicht gefunden."}), 404
+    return jsonify(updated)
 
 
 @app.route(f"{PREFIX}/api/ask", methods=["POST"])

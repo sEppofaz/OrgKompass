@@ -13,6 +13,9 @@ const ICON_PATHS = {
   'flame': '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
   'chevron-right': '<path d="m9 18 6-6-6-6"/>',
   'send': '<path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/>',
+  'edit-3': '<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+  'trash-2': '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/>',
+  'bell': '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
 };
 
 function icon(name, size = 20) {
@@ -214,9 +217,10 @@ const STATE = {
 
 const TABS = [
   { id: 'lernen', label: 'Lernen', icon: 'book-open' },
-  { id: 'quiz', label: 'Quiz', icon: 'list-checks' },
+  { id: 'notizen', label: 'Notizen', icon: 'edit-3' },
   { id: 'glossar', label: 'Glossar', icon: 'library' },
   { id: 'frage', label: 'Frage', icon: 'message-circle' },
+  { id: 'quiz', label: 'Quiz', icon: 'list-checks' },
   { id: 'fortschritt', label: 'Fortschritt', icon: 'bar-chart-3' },
 ];
 
@@ -284,6 +288,107 @@ function jumpToAbschnitt(moduleId, abschnittId) {
     const el = document.getElementById(`abschnitt-${abschnittId}`);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
+}
+
+/* ---------- Rendering: Notizen ---------- */
+
+function renderNotizen() {
+  return `
+    <h1 class="page-title">Notizen</h1>
+    <p class="muted">Eigene Gedanken festhalten — optional als To-Do markieren oder eine Telegram-Erinnerung setzen.</p>
+    <div class="notiz-form">
+      <textarea id="notiz-text" class="search-input" placeholder="Neue Notiz…" rows="2" style="resize:vertical"></textarea>
+      <div class="notiz-form-row">
+        <label class="notiz-todo-toggle"><input type="checkbox" id="notiz-todo"> Als To-Do markieren</label>
+        <input type="datetime-local" id="notiz-erinnerung" class="notiz-datetime">
+      </div>
+      <div id="notiz-error" class="muted" style="font-size:.8rem;display:none"></div>
+      <button class="btn-primary" id="notiz-add">Notiz speichern</button>
+    </div>
+    <div id="notizen-liste" style="margin-top:20px"><p class="muted">Lädt…</p></div>
+  `;
+}
+
+function formatErinnerung(iso) {
+  const [datum, zeit] = iso.split('T');
+  const [y, m, d] = datum.split('-');
+  return `${d}.${m}.${y}${zeit ? ', ' + zeit : ''}`;
+}
+
+async function loadNotizen() {
+  const liste = document.getElementById('notizen-liste');
+  if (!liste) return;
+  try {
+    const res = await fetch('/orgkompass/api/notizen');
+    const data = await res.json();
+    const items = data.notizen || [];
+    if (!items.length) {
+      liste.innerHTML = '<p class="muted">Noch keine Notizen.</p>';
+      return;
+    }
+    liste.innerHTML = items.map((n) => `
+      <div class="card notiz-item${n.erledigt ? ' notiz-erledigt' : ''}">
+        <div class="notiz-item-row">
+          ${n.ist_todo ? `<button class="notiz-check${n.erledigt ? ' checked' : ''}" data-notiz-toggle="${n.id}" data-checked="${n.erledigt}" aria-label="Erledigt umschalten"></button>` : ''}
+          <div class="notiz-item-text">${escapeHtml(n.text)}</div>
+          <button class="notiz-delete" data-notiz-delete="${n.id}" aria-label="Löschen">${icon('trash-2', 16)}</button>
+        </div>
+        ${n.erinnerung ? `<div class="notiz-item-meta">${icon('bell', 12)} ${escapeHtml(formatErinnerung(n.erinnerung))}${n.erinnerung_gesendet ? ' · gesendet' : ''}</div>` : ''}
+      </div>
+    `).join('');
+    liste.querySelectorAll('[data-notiz-toggle]').forEach((btn) => {
+      btn.addEventListener('click', () => toggleNotizErledigt(btn.dataset.notizToggle, btn.dataset.checked !== 'true'));
+    });
+    liste.querySelectorAll('[data-notiz-delete]').forEach((btn) => {
+      btn.addEventListener('click', () => deleteNotiz(btn.dataset.notizDelete));
+    });
+  } catch {
+    liste.innerHTML = '<p class="muted">Notizen konnten nicht geladen werden.</p>';
+  }
+}
+
+async function addNotiz() {
+  const textEl = document.getElementById('notiz-text');
+  const todoEl = document.getElementById('notiz-todo');
+  const erinnerungEl = document.getElementById('notiz-erinnerung');
+  const errorEl = document.getElementById('notiz-error');
+  const text = textEl.value.trim();
+  errorEl.style.display = 'none';
+  if (!text) return;
+  try {
+    const res = await fetch('/orgkompass/api/notizen', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, ist_todo: todoEl.checked, erinnerung: erinnerungEl.value || null }),
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      errorEl.textContent = data.error || 'Notiz konnte nicht gespeichert werden.';
+      errorEl.style.display = 'block';
+      return;
+    }
+    textEl.value = '';
+    todoEl.checked = false;
+    erinnerungEl.value = '';
+    loadNotizen();
+  } catch {
+    errorEl.textContent = 'Verbindungsfehler — bitte erneut versuchen.';
+    errorEl.style.display = 'block';
+  }
+}
+
+async function toggleNotizErledigt(id, newState) {
+  await fetch(`/orgkompass/api/notizen/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ erledigt: newState }),
+  });
+  loadNotizen();
+}
+
+async function deleteNotiz(id) {
+  await fetch(`/orgkompass/api/notizen/${id}`, { method: 'DELETE' });
+  loadNotizen();
 }
 
 /* ---------- Rendering: Quiz ---------- */
@@ -768,6 +873,7 @@ function render() {
   const main = document.getElementById('main');
   let html = '';
   if (STATE.tab === 'lernen') html = renderLernen();
+  else if (STATE.tab === 'notizen') html = renderNotizen();
   else if (STATE.tab === 'quiz') html = renderQuiz();
   else if (STATE.tab === 'glossar') html = renderGlossar();
   else if (STATE.tab === 'frage') html = renderFrage();
@@ -850,6 +956,10 @@ function wireEvents() {
   const frageInput = document.getElementById('frage-input');
   if (frageInput) frageInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleFrageSend(); });
   if (document.getElementById('frage-verlauf')) { loadFrageVerlauf(); loadFrageKosten(); }
+
+  const notizAdd = document.getElementById('notiz-add');
+  if (notizAdd) notizAdd.addEventListener('click', addNotiz);
+  if (document.getElementById('notizen-liste')) loadNotizen();
 }
 
 /* ---------- Info-Sheet ---------- */

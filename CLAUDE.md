@@ -8,16 +8,41 @@ Lern-App für Organisationsberatung (PWA + Flask-Backend). Übergeordnete Regeln
 - **GitHub:** `sEppofaz/OrgKompass` (public)
 - **Lokaler Pfad:** `~/Dropbox/Apps/Claude/OrgKompass/`
 - **Server:** `/opt/orgkompass/` (Owner `webhook:webhook`), systemd `orgkompass.service`, Port **5007**
-- **Stack:** Vanilla-JS-PWA (kein Framework/Build-Step) + Flask-Backend (Login-Schutz + Claude-API-Proxy + Dropbox-Speicherung)
-- **Stand:** Alle 6 Phasen fertig (Stand 2026-08-14). Einziger offener Punkt: Redesign-Verfeinerung (eigenes Todo, s. `CLAUDE.md`-Design-System-Abschnitt).
+- **Stack:** Vanilla-JS-PWA (kein Framework/Build-Step) + Flask-Backend (Login-Schutz + Claude-API-Proxy + Dropbox-Speicherung + Notizen/Telegram-Erinnerungen)
+- **Stand:** Alle 6 Phasen fertig + Notizen-Feature (Stand 2026-08-14). Einziger offener Punkt: Redesign-Verfeinerung (eigenes Todo, s. `CLAUDE.md`-Design-System-Abschnitt).
 
 ## Architektur
 
-- `static/index.html` — App-Shell (Bottom-Tab-Navigation: Lernen/Quiz/Glossar/Frage/Fortschritt), `static/app.js` — State, Gamification, Quiz-Engine, SM-2, Frage-Verlauf-Akkordeon, Volltextsuche, Einstufungstest, Fortschritts-Dashboard
+- `static/index.html` — App-Shell (Bottom-Tab-Navigation: Lernen/Notizen/Glossar/Frage/Quiz/Fortschritt — 6 Tabs seit 2026-08-14, Reihenfolge auf Josef-Wunsch geändert), `static/app.js` — State, Gamification, Quiz-Engine, SM-2, Frage-Verlauf-Akkordeon, Volltextsuche, Einstufungstest, Fortschritts-Dashboard, Notizen
 - `static/content/*.js` — Content als separate Dateien (nicht Single-File, siehe ADR-003): `content-core.js` zuerst, dann `content-modul-01…12-*.js` (10 Kern + 2 Bonus), dann `content-glossar.js`, `content-diagramme.js`. **Jede neue Content-Datei muss an zwei Stellen eingetragen werden:** `<script>`-Tag in `index.html` UND `SHELL`-Array in `sw.js` (sonst offline nicht verfügbar).
-- `app.py` — Flask, **alle Routen mit `/orgkompass`-Präfix** (`PREFIX`-Konstante, s. u.): Login (Session, `ORGKOMPASS_PASSWORD`), statisches Ausliefern, `POST /api/ask` (Claude-Proxy, Modell `claude-haiku-4-5-20251001`, Retry/Backoff bei 529, Vorab-Hard-Kill-Check), `GET /api/ask-history` (liest Frage-Verlauf aus Dropbox, strukturiert als JSON), `GET /api/costs` (Tages-/Monats-/Jahres-/Gesamt-Kosten für den Frage-Tab).
+- `app.py` — Flask, **alle Routen mit `/orgkompass`-Präfix** (`PREFIX`-Konstante, s. u.): Login (Session, `ORGKOMPASS_PASSWORD`), statisches Ausliefern, `POST /api/ask` (Claude-Proxy, Modell `claude-haiku-4-5-20251001`, Retry/Backoff bei 529, Vorab-Hard-Kill-Check), `GET /api/ask-history` (liest Frage-Verlauf aus Dropbox, strukturiert als JSON), `GET /api/costs` (Tages-/Monats-/Jahres-/Gesamt-Kosten für den Frage-Tab), `GET/POST /api/notizen` + `PUT/DELETE /api/notizen/<id>` (Notizen-CRUD).
 - `app_secrets.py` — Secrets-Loader (Name bewusst nicht `secrets.py`, um das gleichnamige Python-Stdlib-Modul nicht zu shadowen — `app.py` braucht `secrets.token_hex()` für den Session-Key).
 - `costs.py` — Kosten-Tracking, 1:1-Template aus `PKA/BKM/Claude-API-Kosten-Tracking.md` + `is_hard_killed_today()` für den Vorab-Check + `today_summary()` für die UI-Anzeige.
+- `notizen_store.py` — Notizen-Datenhaltung (`notizen.json`, gitignored), Lock+Tempfile+atomares Rename nach `PKA/BKM/Atomic-Write-Pattern.md` (**zwei Schreibquellen:** Flask-CRUD-Routen + der separate Erinnerungs-Check-Cronjob, daher Pflicht).
+- `check_erinnerungen.py` — Eigenständiges Skript (kein Flask-Endpunkt), per systemd-Timer alle 15 Min ausgeführt: sucht fällige, noch nicht gesendete Erinnerungen in `notizen.json`, verschickt Telegram-Nachricht über den **bereits bestehenden geteilten PKA-Bot** (`TELEGRAM_TOKEN`/`TELEGRAM_CHAT_ID` aus `secrets.env`, kein neues Secret), markiert `erinnerung_gesendet: true`.
+
+## Notizen-Tab & Telegram-Erinnerungen (2026-08-14, PKA-Todo #277)
+
+Datenmodell je Notiz: `{id, text, ist_todo, erledigt, erinnerung (ISO-Datetime oder null), erinnerung_gesendet, erstellt}`. Bewusst **serverseitig** gespeichert (nicht nur `localStorage` wie Fortschritt/SM-2) — Erinnerungen müssen auch feuern, wenn die App/das Handy nicht offen ist, das erfordert einen serverseitigen Cronjob, der unabhängig vom Client läuft.
+
+**systemd (Server):**
+```
+/etc/systemd/system/orgkompass-erinnerungen.service   # oneshot, ruft check_erinnerungen.py
+/etc/systemd/system/orgkompass-erinnerungen.timer     # OnCalendar=*:0/15 (alle 15 Min)
+```
+Nach jeder Änderung an `check_erinnerungen.py`/`notizen_store.py`: kein Neustart von `orgkompass.service` nötig (eigenständiges Skript), aber `systemctl restart orgkompass-erinnerungen.timer` nur bei Timer-Datei-Änderungen selbst.
+
+## Volltextsuche (Phase 4)
+
+`buildSearchIndex()` in `app.js` baut beim ersten Öffnen des Glossar-Tabs einen In-Memory-Index aus `GLOSSARY` (Term/Kurz/Erklärung) und allen `MODULES[].abschnitte` (Titel + von Markdown befreiter Volltext). Suche liefert zwei Ergebnisgruppen (Glossar/Module); Modul-Treffer springen per `jumpToAbschnitt(moduleId, abschnittId)` direkt zum passenden Abschnitt (setzt `id="abschnitt-{id}"` auf jeden `.section-block`, `scrollIntoView`). Vorschlagsliste (Autocomplete) folgt `PKA/BKM/PWA-Standards.md` „Suchfeld-Vorschlagsliste"-Standard 1:1 (nicht neu erfunden).
+
+## Einstufungstest & Fortschritts-Dashboard (Phase 5)
+
+- **Diagnostik-Fragen:** `getDiagnostikFragen()` filtert alle Fragen mit `diagnostik: true` aus den 10 **Kernmodulen** (Bonus-Module explizit ausgeschlossen, s. Fix-Commit vom 2026-08-14 zu Modul 11/12) → 20 Fragen, verteilt über 16 distinkte `themenfeld`-Werte (einige Kernmodule haben 2 Diagnostik-Fragen im selben Themenfeld statt in zwei verschiedenen — dadurch 16 statt 20 Auswertungs-Keys).
+- **Ergebnis-Speicherung:** `ok_diagnostik_ergebnis` (localStorage, JSON `{themenfeld: {correct, total, score, moduleId, moduleTitel}}`), `ok_diagnostik_datum`. Level-Schwellen: `<40%` Anfänger, `40–75%` Fortgeschritten, `>75%` Erfahren (`diagnostikLevelName()`).
+- **Lernpfad-Empfehlung:** Themenfelder nach Einstufungs-Score aufsteigend sortiert (größter Nachholbedarf zuerst), zusätzlich `themenfeldCurrentScore()` als „aktuell gemeistert"-Vergleichswert (rekonstruiert **alle** Fragen mit demselben `themenfeld`-Tag über alle Module hinweg, nicht nur die 2 ursprünglichen Diagnostik-Fragen — bildet den tatsächlichen aktuellen Lernstand ab, nicht nur den Diagnostik-Schnappschuss).
+- **Fällige Wiederholungen:** `getDueQuestions()` nutzt das seit Phase 1 bestehende SM-2-`nextReview`-Feld (war bis Phase 5 nirgends in der UI nutzbar). Neuer Quiz-Modus im Quiz-Tab (`startDueReviewQuiz()`), `STATE.quiz.moduleId = 'wiederholung'` als Sonderwert (kein echtes Modul).
+- **UI-Ort:** Einstufungstest lebt **innerhalb des Fortschritt-Tabs** (kein eigener Bottom-Tab), umgeschaltet über `STATE.einstufung` (analog zu `STATE.quiz`, aber komplett getrennter State/Render-Pfad `renderEinstufungstest()`/`answerEinstufung()`).
 
 ## Volltextsuche (Phase 4)
 
@@ -37,7 +62,7 @@ Alle Flask-Routen sind selbst mit `/orgkompass`-Präfix registriert (`@app.route
 
 ## Design-System
 
-Überwiegend Weiß, hellgraue Symbole/Linien/Rahmen, monochromes Farbschema (kein Farbakzent außer Quiz-Feedback Grün/Gelb/Rot — Pflicht lt. `PWA-Standards.md`). Bottom-Tab-Bar fix mit 5 Tabs. Icon-Hintergrund Graphit `#2c2c2e` mit weißem Kompass (Lucide `compass`). Seit 2026-08-14 zusätzlich Elevation/Tiefe: `--shadow-sm/md/lg`-Tokens, Gradient-Buttons (`--accent` → `--accent-soft`), Karten mit Schatten, Tab-Bar-Active-Pill (Josef-Wunsch „mehr Stil und Hochglanz" — Ergebnis von Josef noch nicht als voll gelungen bewertet, aber bewusst erstmal so belassen; Redesign-Verfeinerung ist ein offener Punkt für eine künftige Session).
+Überwiegend Weiß, hellgraue Symbole/Linien/Rahmen, monochromes Farbschema (kein Farbakzent außer Quiz-Feedback Grün/Gelb/Rot — Pflicht lt. `PWA-Standards.md`). Bottom-Tab-Bar fix mit 6 Tabs (Lernen/Notizen/Glossar/Frage/Quiz/Fortschritt, Reihenfolge seit 2026-08-14). Icon-Hintergrund Graphit `#2c2c2e` mit weißem Kompass (Lucide `compass`). Seit 2026-08-14 zusätzlich Elevation/Tiefe: `--shadow-sm/md/lg`-Tokens, Gradient-Buttons (`--accent` → `--accent-soft`), Karten mit Schatten, Tab-Bar-Active-Pill (Josef-Wunsch „mehr Stil und Hochglanz" — Ergebnis von Josef noch nicht als voll gelungen bewertet, aber bewusst erstmal so belassen; Redesign-Verfeinerung ist ein offener Punkt für eine künftige Session). `--text` seit 2026-08-14 auf `#3a3a3d` (Anthrazit statt hartes Schwarz `#1c1c1e`, Josef-Wunsch aus PKA-Todo #277). Alle fixen/absoluten UI-Elemente (Header, `#tab-bar`, `#back-top`, Info-Sheet) nutzen `env(safe-area-inset-left/right)` zusätzlich zu `-top/-bottom` für Querformat-Notch-Sicherheit.
 
 ## Icon-Erstellung
 
@@ -80,6 +105,7 @@ ssh root@89.167.104.145 "cd /opt/orgkompass && sudo -u webhook git pull && syste
 - **Kosten-Schwellen-Test:** Werden `DAILY_WARN_USD`/`DAILY_HARD_KILL_USD` in `costs.py` für einen Verifikationstest **direkt auf dem Server** temporär gesenkt (nicht committed), danach zwingend `git checkout costs.py` zum Zurücksetzen — nicht manuell zurückschreiben (Tippfehlerrisiko).
 - **`manifest.json` `start_url` muss auf eine echte Route zeigen:** `"./index.html"` war falsch — es gibt keine `/orgkompass/index.html`-Route, Flask liefert den `index.html`-Inhalt nur unter `/orgkompass/` selbst aus. Führte zu „not found" beim „Zum Homescreen hinzufügen". Bei jeder neuen App/jedem neuen Präfix-Setup: `start_url` gegen die tatsächlich existierenden Routen prüfen, nicht blind `./index.html` annehmen.
 - **Safari-Standard-Button-Farbe bei `<button>`-Elementen ohne explizites `color`:** `.module-card-title` hatte keine eigene Textfarbe und erschien blau statt dunkel, weil `.module-card` ein `<button>` ist und Safari dafür eine Standardfarbe (System-Blau) einsetzt, wenn `color` nicht explizit gesetzt ist — Vererbung von `body`/`.card` reicht nicht. **Regel für jedes neue Button-Element:** `color` immer explizit setzen (nicht auf Vererbung verlassen), sonst kann je nach Browser/Plattform ein ungewolltes Blau durchschlagen.
+- **Antwortposition-Bias bei Multiple-Choice-Content:** Beim Erstellen aller 154 Fragen (Phase 2/3) lag die richtige Antwort unbewusst zu 93,5 % auf Position 1 oder 2, Position 4 war kein einziges Mal die Lösung (Josef fiel das beim Einstufungstest auf: „Lösung ist immer der zweite Button"). Nachträglich per Skript korrigiert (balancierte Neuzuteilung + semantische Verifikation aller 154 Fragen, dass der Lösungstext exakt erhalten blieb). **Regel für jedes neue Modul/jede neue Frage:** Position der richtigen Antwort bewusst variieren (alle 4 Positionen etwa gleich häufig), nicht der Reihenfolge folgen, in der einem die Optionen einfallen — dieser Bias entsteht leicht unbewusst.
 
 ## Offen: PWA-Standard „Tab-Leiste am unteren Bildschirmrand" nachziehen
 

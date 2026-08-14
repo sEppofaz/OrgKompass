@@ -16,7 +16,7 @@
   --bg2: #f7f7f8;
   --bg3: #ffffff;
   --border: #e2e2e4;
-  --text: #1c1c1e;
+  --text: #3a3a3d;
   --muted: #8a8a8e;
   --icon: #a0a0a5;
   --accent: #2c2c2e;
@@ -70,7 +70,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: calc(env(safe-area-inset-top) + 14px) 18px 14px;
+  padding: calc(env(safe-area-inset-top) + 14px) calc(env(safe-area-inset-right) + 18px) 14px calc(env(safe-area-inset-left) + 18px);
   background: var(--bg);
   box-shadow: var(--shadow-sm);
   position: relative;
@@ -99,7 +99,7 @@ main {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 18px 16px calc(env(safe-area-inset-bottom) + 100px);
+  padding: 18px calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 100px) calc(env(safe-area-inset-left) + 16px);
   position: relative;
 }
 .page-title { font-size: 1.5rem; font-weight: 800; letter-spacing: -.015em; margin: 4px 0 18px; }
@@ -220,6 +220,38 @@ main {
 .frage-input-wrap .search-input { margin: 0; }
 .frage-antwort { min-height: 40px; }
 
+.notiz-form {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 16px;
+  padding: 14px 16px; box-shadow: var(--shadow-sm);
+}
+.notiz-form textarea.search-input { width: 100%; font-family: inherit; }
+.notiz-form-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  margin-top: 10px; flex-wrap: wrap;
+}
+.notiz-todo-toggle { display: flex; align-items: center; gap: 6px; font-size: .88rem; color: var(--text); }
+.notiz-todo-toggle input { width: 18px; height: 18px; accent-color: var(--accent); }
+.notiz-datetime {
+  border: 1px solid var(--border); background: var(--bg2); color: var(--text);
+  border-radius: 10px; padding: 8px 10px; font-size: .85rem; min-height: 38px;
+}
+.notiz-item { margin-bottom: 10px; padding: 12px 14px; }
+.notiz-item.notiz-erledigt { opacity: .55; }
+.notiz-item.notiz-erledigt .notiz-item-text { text-decoration: line-through; }
+.notiz-item-row { display: flex; align-items: flex-start; gap: 10px; }
+.notiz-item-text { flex: 1; font-size: .95rem; line-height: 1.4; color: var(--text); word-break: break-word; }
+.notiz-check {
+  flex-shrink: 0; width: 22px; height: 22px; margin-top: 1px; border-radius: 7px;
+  border: 2px solid var(--border); background: none; padding: 0;
+}
+.notiz-check.checked { background: var(--accent); border-color: var(--accent); position: relative; }
+.notiz-check.checked::after {
+  content: ""; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px;
+  border: solid var(--accent-text); border-width: 0 2px 2px 0; transform: rotate(45deg);
+}
+.notiz-delete { flex-shrink: 0; background: none; border: none; color: var(--icon); padding: 2px; min-width: 28px; min-height: 28px; }
+.notiz-item-meta { display: flex; align-items: center; gap: 5px; color: var(--muted); font-size: .74rem; margin-top: 8px; }
+
 .progress-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 8px; }
 .progress-row { display: flex; align-items: center; gap: 10px; }
 .progress-row-label { flex: 0 0 40%; font-size: .82rem; color: var(--text); line-height: 1.3; }
@@ -254,7 +286,7 @@ main {
   display: flex; justify-content: space-around;
   background: var(--bg);
   box-shadow: 0 -1px 0 var(--border), var(--shadow-lg);
-  padding: 6px 4px calc(env(safe-area-inset-bottom) + 6px);
+  padding: 6px calc(env(safe-area-inset-right) + 4px) calc(env(safe-area-inset-bottom) + 6px) calc(env(safe-area-inset-left) + 4px);
   z-index: 20;
 }
 .tab-btn {
@@ -266,7 +298,7 @@ main {
 .tab-btn.active { color: var(--accent); background: var(--bg2); font-weight: 700; }
 
 #back-top {
-  position: fixed; right: 16px; bottom: calc(env(safe-area-inset-bottom) + 78px);
+  position: fixed; right: calc(env(safe-area-inset-right) + 16px); bottom: calc(env(safe-area-inset-bottom) + 78px);
   width: 46px; height: 46px; border-radius: 50%;
   background: linear-gradient(155deg, var(--accent-soft), var(--accent)); color: var(--accent-text); border: none;
   display: none; align-items: center; justify-content: center;
@@ -294,7 +326,7 @@ main {
 #info-overlay.open { opacity: 1; pointer-events: auto; }
 .info-sheet {
   background: var(--bg); width: 100%; max-height: 80vh; overflow-y: auto;
-  border-radius: 22px 22px 0 0; padding: 16px 20px calc(env(safe-area-inset-bottom) + 20px);
+  border-radius: 22px 22px 0 0; padding: 16px calc(env(safe-area-inset-right) + 20px) calc(env(safe-area-inset-bottom) + 20px) calc(env(safe-area-inset-left) + 20px);
   box-shadow: var(--shadow-lg);
 }
 .info-sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
@@ -330,9 +362,9 @@ main {
       <h2>Info</h2>
       <button id="info-close" style="background:none;border:none;color:var(--muted)">✕</button>
     </div>
-    <p>OrgKompass ist deine Lern-App für Organisationsberatung — 12 Module mit Lerneinheiten, Quiz, Volltextsuche und durchsuchbarem Glossar zu Reorganisation, Strukturgestaltung, Funktionsbewertung, Change Management, Analyse-Methoden sowie internationalen und agilen Organisationsformen. Der Einstufungstest zeigt deinen Lernpfad je Themenfeld, das Fortschritts-Dashboard den Stand je Modul inkl. fälliger Wiederholungen. Die Frage-Funktion beantwortet fachliche Fragen per Claude und speichert den Verlauf geräteübergreifend.</p>
+    <p>OrgKompass ist deine Lern-App für Organisationsberatung — 12 Module mit Lerneinheiten, Quiz, Volltextsuche und durchsuchbarem Glossar zu Reorganisation, Strukturgestaltung, Funktionsbewertung, Change Management, Analyse-Methoden sowie internationalen und agilen Organisationsformen. Der Einstufungstest zeigt deinen Lernpfad je Themenfeld, das Fortschritts-Dashboard den Stand je Modul inkl. fälliger Wiederholungen. Im Notizen-Tab hältst du eigene Gedanken fest, optional als To-Do mit Telegram-Erinnerung. Die Frage-Funktion beantwortet fachliche Fragen per Claude und speichert den Verlauf geräteübergreifend.</p>
     <button class="btn-logout" id="logout-btn">Abmelden</button>
-    <p class="version-line">Version 2.1 · 2026-08-14</p>
+    <p class="version-line">Version 2.2 · 2026-08-14</p>
   </div>
 </div>
 
