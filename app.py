@@ -2,13 +2,17 @@ import functools
 import hmac
 import secrets
 import time
+from datetime import datetime
 from pathlib import Path
 
 import anthropic
+import dropbox
 from flask import Flask, jsonify, request, redirect, session, send_from_directory
 
 import costs
 from app_secrets import load_secrets
+
+DROPBOX_VERLAUF_PATH = "/Apps/Claude/OrgKompass/fragen-verlauf.md"
 
 CLAUDE_MODEL = "claude-haiku-4-5-20251001"
 CLAUDE_SYSTEM_PROMPT = (
@@ -47,6 +51,28 @@ app.permanent_session_lifetime = 60 * 60 * 24 * 30  # 30 Tage
 def _check_password(password: str) -> bool:
     real = load_secrets().get("ORGKOMPASS_PASSWORD", "")
     return bool(real) and hmac.compare_digest(password, real)
+
+
+def _save_qa_to_dropbox(question: str, answer: str) -> None:
+    secrets_data = load_secrets()
+    key = secrets_data.get("DROPBOX_APP_KEY", "")
+    app_secret = secrets_data.get("DROPBOX_APP_SECRET", "")
+    token = secrets_data.get("DROPBOX_REFRESH_TOKEN", "")
+    if not (key and app_secret and token):
+        return
+    dbx = dropbox.Dropbox(oauth2_refresh_token=token, app_key=key, app_secret=app_secret)
+    try:
+        _, res = dbx.files_download(DROPBOX_VERLAUF_PATH)
+        existing = res.content.decode("utf-8")
+    except dropbox.exceptions.ApiError:
+        existing = ""
+    entry = (
+        f"## {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n"
+        f"**Frage:** {question}\n\n"
+        f"**Antwort:** {answer}\n\n---\n\n"
+    )
+    dbx.files_upload((existing + entry).encode("utf-8"), DROPBOX_VERLAUF_PATH,
+                      mode=dropbox.files.WriteMode.overwrite)
 
 
 def login_required(view):
@@ -159,6 +185,11 @@ def ask():
         print(f"[orgkompass] Tages-Hard-Kill erreicht: {result['day_total_usd']:.4f} USD")
     elif result["warn_1usd"]:
         print(f"[orgkompass] Tages-Warnschwelle erreicht: {result['day_total_usd']:.4f} USD")
+
+    try:
+        _save_qa_to_dropbox(question, answer)
+    except Exception as e:
+        print(f"[orgkompass] Dropbox-Speicherung fehlgeschlagen: {e}")
 
     return jsonify({"answer": answer})
 
