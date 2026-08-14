@@ -205,11 +205,27 @@ main {
   background: none; border: none; color: var(--icon);
   width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
 }
-.glossary-card .module-card-title { font-weight: 700; }
+.glossary-card .module-card-title { font-weight: 700; font-size: 1rem; }
+
+.suggestions {
+  display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 12px;
+  max-height: 240px; overflow-y: auto; z-index: 40; box-shadow: var(--shadow-lg);
+}
+.suggestion-item { padding: 11px 16px; font-size: .92rem; cursor: pointer; border-bottom: 1px solid var(--border); }
+.suggestion-item:last-child { border-bottom: none; }
+.suggestion-item:active, .suggestion-item.active { background: var(--bg2); }
 
 .frage-input-wrap { display: flex; gap: 8px; margin-top: 12px; }
 .frage-input-wrap .search-input { margin: 0; }
 .frage-antwort { min-height: 40px; }
+
+.progress-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 8px; }
+.progress-row { display: flex; align-items: center; gap: 10px; }
+.progress-row-label { flex: 0 0 40%; font-size: .82rem; color: var(--text); line-height: 1.3; }
+.progress-bar { flex: 1; height: 8px; border-radius: 999px; background: var(--bg2); overflow: hidden; }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent-soft), var(--accent)); border-radius: 999px; transition: width .3s ease; }
+.progress-row-value { flex: 0 0 auto; font-size: .78rem; color: var(--muted); min-width: 34px; text-align: right; }
 
 .verlauf-item {
   background: var(--bg3); border: 1px solid var(--border); border-radius: 14px;
@@ -314,9 +330,9 @@ main {
       <h2>Info</h2>
       <button id="info-close" style="background:none;border:none;color:var(--muted)">✕</button>
     </div>
-    <p>OrgKompass ist deine Lern-App für Organisationsberatung — 12 Module mit Lerneinheiten, Quiz und durchsuchbarem Glossar zu Reorganisation, Strukturgestaltung, Funktionsbewertung, Change Management, Analyse-Methoden sowie internationalen und agilen Organisationsformen. Die Frage-Funktion beantwortet fachliche Fragen per Claude und speichert den Verlauf geräteübergreifend.</p>
+    <p>OrgKompass ist deine Lern-App für Organisationsberatung — 12 Module mit Lerneinheiten, Quiz, Volltextsuche und durchsuchbarem Glossar zu Reorganisation, Strukturgestaltung, Funktionsbewertung, Change Management, Analyse-Methoden sowie internationalen und agilen Organisationsformen. Der Einstufungstest zeigt deinen Lernpfad je Themenfeld, das Fortschritts-Dashboard den Stand je Modul inkl. fälliger Wiederholungen. Die Frage-Funktion beantwortet fachliche Fragen per Claude und speichert den Verlauf geräteübergreifend.</p>
     <button class="btn-logout" id="logout-btn">Abmelden</button>
-    <p class="version-line">Version 2.0 · 2026-08-14</p>
+    <p class="version-line">Version 2.1 · 2026-08-14</p>
   </div>
 </div>
 

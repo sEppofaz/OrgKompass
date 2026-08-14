@@ -141,12 +141,73 @@ function recordAnswer(questionId, correct) {
   return entry;
 }
 
+/* ---------- Einstufungstest ---------- */
+
+const DIAGNOSTIK_LEVELS = [
+  { max: 0.4, name: 'Anfänger' },
+  { max: 0.75, name: 'Fortgeschritten' },
+  { max: Infinity, name: 'Erfahren' },
+];
+
+function diagnostikLevelName(score) {
+  for (const l of DIAGNOSTIK_LEVELS) if (score < l.max) return l.name;
+  return 'Erfahren';
+}
+
+function getDiagnostikFragen() {
+  return MODULES.filter((m) => !m.bonus).flatMap((m) =>
+    m.fragen.filter((q) => q.diagnostik).map((q) => ({ ...q, moduleId: m.id, moduleTitel: m.titel }))
+  );
+}
+
+function getDiagnostikErgebnis() {
+  try { return JSON.parse(localStorage.getItem('ok_diagnostik_ergebnis') || 'null'); }
+  catch { return null; }
+}
+
+function computeThemenfeldErgebnis(answers) {
+  const byThemenfeld = {};
+  answers.forEach(({ themenfeld, correct, moduleId, moduleTitel }) => {
+    const t = byThemenfeld[themenfeld] || { correct: 0, total: 0, moduleId, moduleTitel };
+    t.total += 1;
+    if (correct) t.correct += 1;
+    byThemenfeld[themenfeld] = t;
+  });
+  Object.values(byThemenfeld).forEach((t) => { t.score = t.correct / t.total; });
+  return byThemenfeld;
+}
+
+function themenfeldCurrentScore(themenfeld) {
+  const progress = getProgress();
+  const qs = MODULES.flatMap((m) => m.fragen.filter((q) => q.themenfeld === themenfeld));
+  if (!qs.length) return null;
+  const mastered = qs.filter((q) => {
+    const e = progress[q.id];
+    return e && e.ease >= 2.0 && e.streakCorrect >= 2;
+  }).length;
+  return mastered / qs.length;
+}
+
+/* ---------- Fällige Wiederholungen ---------- */
+
+function getDueQuestions() {
+  const progress = getProgress();
+  const today = todayStr();
+  const due = [];
+  MODULES.forEach((m) => m.fragen.forEach((q) => {
+    const e = progress[q.id];
+    if (e && e.nextReview && e.nextReview <= today) due.push({ ...q, moduleId: m.id });
+  }));
+  return due;
+}
+
 /* ---------- State ---------- */
 
 const STATE = {
   tab: 'lernen',
   activeModuleId: null,
   quiz: null, // { moduleId, questions, idx, score }
+  einstufung: null, // { questions, idx, answers, saved, bonus }
 };
 
 /* ---------- Navigation ---------- */
@@ -201,7 +262,7 @@ function renderModuleDetail(moduleId) {
   const m = MODULES.find((x) => x.id === moduleId);
   if (!m) return '<p>Modul nicht gefunden.</p>';
   const sections = m.abschnitte.map((a) => `
-    <div class="section-block">
+    <div class="section-block" id="abschnitt-${a.id}">
       <div class="markdown">${renderMarkdown(a.inhalt_markdown)}</div>
       ${a.diagramm && DIAGRAMS[a.diagramm] ? `<div class="diagram">${DIAGRAMS[a.diagramm]()}</div>` : ''}
     </div>
@@ -214,17 +275,38 @@ function renderModuleDetail(moduleId) {
   `;
 }
 
+function jumpToAbschnitt(moduleId, abschnittId) {
+  STATE.tab = 'lernen';
+  STATE.activeModuleId = moduleId;
+  renderTabBar();
+  render();
+  requestAnimationFrame(() => {
+    const el = document.getElementById(`abschnitt-${abschnittId}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
 /* ---------- Rendering: Quiz ---------- */
 
 function renderQuiz() {
   if (!STATE.quiz) {
+    const dueCount = getDueQuestions().length;
+    const dueEntry = dueCount ? `
+      <button class="card module-card" id="start-due-review">
+        <div>
+          <div class="module-card-title">${icon('flame', 16)} Fällige Wiederholungen</div>
+          <div class="module-card-desc">${dueCount} Frage${dueCount === 1 ? '' : 'n'} bereit</div>
+        </div>
+        ${icon('chevron-right', 20)}
+      </button>
+    ` : '';
     const items = MODULES.map((m) => `
       <button class="card module-card" data-quiz-module="${m.id}">
         <div class="module-card-title">${m.titel}</div>
         <span class="muted">${m.fragen.length} Fragen</span>
       </button>
     `).join('');
-    return `<h1 class="page-title">Quiz auswählen</h1><div class="card-list">${items}</div>`;
+    return `<h1 class="page-title">Quiz auswählen</h1><div class="card-list">${dueEntry}${items}</div>`;
   }
   const q = STATE.quiz.questions[STATE.quiz.idx];
   if (!q) return renderQuizResults();
@@ -260,6 +342,13 @@ function startQuiz(moduleId) {
   render();
 }
 
+function startDueReviewQuiz() {
+  const due = getDueQuestions();
+  if (!due.length) return;
+  STATE.quiz = { moduleId: 'wiederholung', questions: due, idx: 0, score: 0 };
+  render();
+}
+
 function answerQuiz(optionIdx) {
   const q = STATE.quiz.questions[STATE.quiz.idx];
   const correct = optionIdx === q.loesung_index;
@@ -279,32 +368,132 @@ function answerQuiz(optionIdx) {
   }, 1200);
 }
 
-/* ---------- Rendering: Glossar ---------- */
+/* ---------- Volltextsuche (Glossar + Modul-Abschnitte) ---------- */
+
+let SEARCH_INDEX = null;
+
+function stripMarkdown(md) {
+  return (md || '').replace(/[#*_`>-]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function buildSearchIndex() {
+  const idx = [];
+  GLOSSARY.forEach((g) => {
+    const plain = stripMarkdown(g.erklaerung_markdown);
+    idx.push({
+      type: 'glossar', title: g.term, snippet: g.kurz,
+      searchText: `${g.term} ${g.kurz} ${plain}`.toLowerCase(), ref: g,
+    });
+  });
+  MODULES.forEach((m) => {
+    m.abschnitte.forEach((a) => {
+      const plain = stripMarkdown(a.inhalt_markdown);
+      idx.push({
+        type: 'modul', title: a.titel, snippet: plain.slice(0, 130) + (plain.length > 130 ? '…' : ''),
+        searchText: `${a.titel} ${plain}`.toLowerCase(),
+        moduleId: m.id, moduleTitel: m.titel, abschnittId: a.id,
+      });
+    });
+  });
+  SEARCH_INDEX = idx;
+}
+
+function computeSuggestions(term) {
+  const seen = new Set(), out = [];
+  for (const entry of SEARCH_INDEX) {
+    const key = entry.title.toLowerCase();
+    if (key.includes(term) && !seen.has(key)) { seen.add(key); out.push(entry.title); }
+  }
+  return out.sort((a, b) => a.localeCompare(b, 'de')).slice(0, 8);
+}
+
+let suggestionIndex = -1;
+
+function updateSuggestionsBox() {
+  const input = document.getElementById('glossar-search');
+  const box = document.getElementById('glossar-suggestions');
+  if (!input || !box) return;
+  const term = input.value.trim().toLowerCase();
+  suggestionIndex = -1;
+  if (document.activeElement !== input || term.length < 2) { box.style.display = 'none'; box.innerHTML = ''; return; }
+  const suggestions = computeSuggestions(term);
+  if (!suggestions.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+  box.innerHTML = suggestions.map((v) => `<div class="suggestion-item" data-value="${escapeHtml(v)}">${escapeHtml(v)}</div>`).join('');
+  box.style.display = 'block';
+}
+
+function pickSuggestion(value) {
+  const input = document.getElementById('glossar-search');
+  const clearBtn = document.getElementById('glossar-search-clear');
+  input.value = value;
+  renderGlossarResults(value);
+  clearBtn.style.display = 'block';
+  document.getElementById('glossar-suggestions').style.display = 'none';
+}
+
+/* ---------- Rendering: Glossar & Suche ---------- */
 
 function renderGlossar() {
   return `
-    <h1 class="page-title">Glossar</h1>
+    <h1 class="page-title">Glossar &amp; Suche</h1>
+    <p class="muted">Durchsucht Glossar und Modulinhalte.</p>
     <div class="search-wrap">
-      <input type="search" id="glossar-search" class="search-input" placeholder="Begriff suchen…" autocomplete="off">
+      <input type="search" id="glossar-search" class="search-input" placeholder="Begriff oder Thema suchen…" autocomplete="off">
       <button class="search-clear" id="glossar-search-clear" style="display:none">${icon('x', 16)}</button>
+      <div id="glossar-suggestions" class="suggestions"></div>
     </div>
-    <div id="glossar-list" class="card-list"></div>
+    <div id="glossar-results"></div>
   `;
 }
 
-function renderGlossarList(filter = '') {
-  const list = document.getElementById('glossar-list');
-  if (!list) return;
+function renderGlossarResults(filter = '') {
+  const results = document.getElementById('glossar-results');
+  if (!results) return;
   const f = filter.trim().toLowerCase();
-  const items = GLOSSARY
-    .filter((g) => !f || g.term.toLowerCase().includes(f) || g.kurz.toLowerCase().includes(f))
-    .sort((a, b) => a.term.localeCompare(b.term, 'de'));
-  list.innerHTML = items.map((g) => `
-    <div class="card glossary-card">
-      <div class="module-card-title">${g.term}</div>
-      <div class="module-card-desc">${g.kurz}</div>
-    </div>
-  `).join('') || '<p class="muted">Keine Treffer.</p>';
+
+  if (!f) {
+    const items = [...GLOSSARY].sort((a, b) => a.term.localeCompare(b.term, 'de'));
+    results.innerHTML = `<div class="card-list">${items.map((g) => `
+      <div class="card glossary-card">
+        <div class="module-card-title">${g.term}</div>
+        <div class="module-card-desc">${g.kurz}</div>
+      </div>
+    `).join('')}</div>`;
+    return;
+  }
+
+  const matches = SEARCH_INDEX.filter((e) => e.searchText.includes(f));
+  const glossarMatches = matches.filter((e) => e.type === 'glossar');
+  const modulMatches = matches.filter((e) => e.type === 'modul');
+
+  if (!matches.length) {
+    results.innerHTML = '<p class="muted">Keine Treffer.</p>';
+    return;
+  }
+
+  let html = '';
+  if (glossarMatches.length) {
+    html += `<h2 class="page-title" style="font-size:1rem;margin:8px 0 10px">Glossar (${glossarMatches.length})</h2>
+      <div class="card-list">${glossarMatches.map((e) => `
+        <div class="card glossary-card">
+          <div class="module-card-title">${e.title}</div>
+          <div class="module-card-desc">${e.snippet}</div>
+        </div>
+      `).join('')}</div>`;
+  }
+  if (modulMatches.length) {
+    html += `<h2 class="page-title" style="font-size:1rem;margin:20px 0 10px">Module (${modulMatches.length})</h2>
+      <div class="card-list">${modulMatches.map((e) => `
+        <button class="card module-card" data-jump-module="${e.moduleId}" data-jump-abschnitt="${e.abschnittId}">
+          <div>
+            <div class="module-card-title">${e.title}</div>
+            <div class="module-card-desc">${e.moduleTitel} — ${e.snippet}</div>
+          </div>
+          ${icon('chevron-right', 20)}
+        </button>
+      `).join('')}</div>`;
+  }
+  results.innerHTML = html;
 }
 
 /* ---------- Rendering: Frage stellen ---------- */
@@ -410,7 +599,77 @@ async function handleFrageSend() {
   }
 }
 
+/* ---------- Rendering: Einstufungstest ---------- */
+
+function startEinstufungstest() {
+  STATE.einstufung = { questions: getDiagnostikFragen(), idx: 0, answers: [], saved: false };
+  render();
+}
+
+function renderEinstufungstest() {
+  const { questions, idx } = STATE.einstufung;
+  const q = questions[idx];
+  if (!q) return renderEinstufungResult();
+  const options = q.optionen.map((opt, i) => `<button class="quiz-option" data-idx="${i}">${opt}</button>`).join('');
+  return `
+    <div class="quiz-progress">Einstufungstest — Frage ${idx + 1} / ${questions.length}</div>
+    <h2 class="quiz-question">${q.frage}</h2>
+    <div class="quiz-options">${options}</div>
+  `;
+}
+
+function answerEinstufung(optionIdx) {
+  const { questions, idx } = STATE.einstufung;
+  const q = questions[idx];
+  const correct = optionIdx === q.loesung_index;
+  recordAnswer(q.id, correct);
+  STATE.einstufung.answers.push({ themenfeld: q.themenfeld, correct, moduleId: q.moduleId, moduleTitel: q.moduleTitel });
+
+  const buttons = document.querySelectorAll('.quiz-option');
+  buttons.forEach((b, i) => {
+    b.disabled = true;
+    if (i === q.loesung_index) b.classList.add('correct');
+    else if (i === optionIdx) b.classList.add('incorrect');
+  });
+
+  setTimeout(() => {
+    STATE.einstufung.idx += 1;
+    render();
+  }, 1200);
+}
+
+function renderEinstufungResult() {
+  const { answers, questions } = STATE.einstufung;
+  if (!STATE.einstufung.saved) {
+    const ergebnis = computeThemenfeldErgebnis(answers);
+    localStorage.setItem('ok_diagnostik_ergebnis', JSON.stringify(ergebnis));
+    localStorage.setItem('ok_diagnostik_datum', todayStr());
+    const score = answers.filter((a) => a.correct).length;
+    const bonus = computeAndApplyBonus(score * 10 + (questions.length - score) * 2);
+    if (bonus.levelUp) triggerConfetti();
+    STATE.einstufung.saved = true;
+    STATE.einstufung.bonus = bonus;
+  }
+  const score = answers.filter((a) => a.correct).length;
+  return `
+    <h1 class="page-title">Einstufungstest — Ergebnis</h1>
+    <p class="quiz-result-score">${score} / ${questions.length} richtig</p>
+    <p class="quiz-result-xp">+${STATE.einstufung.bonus.xpGained} XP${STATE.einstufung.bonus.levelUp ? ` — Level Up: ${STATE.einstufung.bonus.level.name}!` : ''}</p>
+    <button class="btn-primary" id="einstufung-done">Zum Fortschritts-Dashboard</button>
+  `;
+}
+
 /* ---------- Rendering: Fortschritt ---------- */
+
+function moduleProgressStats(m) {
+  const progress = getProgress();
+  const total = m.fragen.length;
+  const mastered = m.fragen.filter((q) => {
+    const e = progress[q.id];
+    return e && e.ease >= 2.0 && e.streakCorrect >= 2;
+  }).length;
+  return { total, mastered, pct: total ? Math.round((mastered / total) * 100) : 0 };
+}
 
 function renderFortschritt() {
   const xp = getXp();
@@ -419,6 +678,48 @@ function renderFortschritt() {
   const progress = getProgress();
   const totalQuestions = MODULES.reduce((sum, m) => sum + m.fragen.length, 0);
   const mastered = Object.values(progress).filter((e) => e.ease >= 2.0 && e.streakCorrect >= 2).length;
+  const dueCount = getDueQuestions().length;
+  const diagnostik = getDiagnostikErgebnis();
+
+  const moduleBars = MODULES.map((m) => {
+    const s = moduleProgressStats(m);
+    return `
+      <div class="progress-row">
+        <div class="progress-row-label">${m.bonus ? '⭐ ' : ''}${m.titel}</div>
+        <div class="progress-bar"><div class="progress-bar-fill" style="width:${s.pct}%"></div></div>
+        <div class="progress-row-value">${s.mastered}/${s.total}</div>
+      </div>
+    `;
+  }).join('');
+
+  let diagnostikBlock;
+  if (!diagnostik) {
+    diagnostikBlock = `
+      <h2 class="page-title" style="font-size:1.05rem;margin-top:24px">Einstufungstest</h2>
+      <div class="card">
+        <div class="module-card-desc">20 Fragen (2 je Kernmodul), ca. 8–10 Minuten — zeigt deinen Lernpfad je Themenfeld, sortiert nach Nachholbedarf.</div>
+        <button class="btn-primary" id="start-einstufungstest">Einstufungstest starten</button>
+      </div>
+    `;
+  } else {
+    const rows = Object.entries(diagnostik)
+      .map(([themenfeld, t]) => ({ themenfeld, ...t, current: themenfeldCurrentScore(themenfeld) }))
+      .sort((a, b) => a.score - b.score);
+    diagnostikBlock = `
+      <h2 class="page-title" style="font-size:1.05rem;margin-top:24px">Lernpfad-Empfehlung</h2>
+      <p class="muted" style="margin-top:-10px;margin-bottom:12px">Nach Einstufung sortiert — größter Nachholbedarf zuerst.</p>
+      <div class="card-list">
+        ${rows.map((r) => `
+          <div class="card">
+            <div class="module-card-title">${r.moduleTitel}</div>
+            <div class="module-card-desc">Einstufung: ${diagnostikLevelName(r.score)} (${Math.round(r.score * 100)}%)${r.current !== null ? ` · aktuell gemeistert: ${Math.round(r.current * 100)}%` : ''}</div>
+          </div>
+        `).join('')}
+      </div>
+      <button class="btn-primary" id="start-einstufungstest">Einstufungstest wiederholen</button>
+    `;
+  }
+
   return `
     <h1 class="page-title">Fortschritt</h1>
     <div class="card">
@@ -431,7 +732,14 @@ function renderFortschritt() {
     <div class="card">
       <div class="module-card-title">${mastered} / ${totalQuestions} Fragen gemeistert</div>
     </div>
-    <p class="muted">Lernzielanalyse (Einstufungstest + Themenfeld-Dashboard) folgt in Phase 5.</p>
+    ${dueCount ? `
+    <div class="card">
+      <div class="module-card-title">${dueCount} Wiederholung${dueCount === 1 ? '' : 'en'} fällig</div>
+      <div class="module-card-desc">Im Quiz-Tab unter „Fällige Wiederholungen"</div>
+    </div>` : ''}
+    <h2 class="page-title" style="font-size:1.05rem;margin-top:24px">Fortschritt je Modul</h2>
+    <div class="progress-list">${moduleBars}</div>
+    ${diagnostikBlock}
   `;
 }
 
@@ -463,7 +771,7 @@ function render() {
   else if (STATE.tab === 'quiz') html = renderQuiz();
   else if (STATE.tab === 'glossar') html = renderGlossar();
   else if (STATE.tab === 'frage') html = renderFrage();
-  else if (STATE.tab === 'fortschritt') html = renderFortschritt();
+  else if (STATE.tab === 'fortschritt') html = STATE.einstufung ? renderEinstufungstest() : renderFortschritt();
   main.innerHTML = html;
   wireEvents();
 }
@@ -487,27 +795,55 @@ function wireEvents() {
   document.querySelectorAll('[data-quiz-module]').forEach((el) =>
     el.addEventListener('click', () => startQuiz(el.dataset.quizModule))
   );
+  const dueReviewBtn = document.getElementById('start-due-review');
+  if (dueReviewBtn) dueReviewBtn.addEventListener('click', startDueReviewQuiz);
   document.querySelectorAll('.quiz-option').forEach((el, i) =>
-    el.addEventListener('click', () => answerQuiz(i))
+    el.addEventListener('click', () => (STATE.einstufung ? answerEinstufung(i) : answerQuiz(i)))
   );
   const quizDone = document.getElementById('quiz-done');
   if (quizDone) quizDone.addEventListener('click', () => { STATE.quiz = null; render(); });
 
+  const startEinstufung = document.getElementById('start-einstufungstest');
+  if (startEinstufung) startEinstufung.addEventListener('click', startEinstufungstest);
+  const einstufungDone = document.getElementById('einstufung-done');
+  if (einstufungDone) einstufungDone.addEventListener('click', () => { STATE.einstufung = null; render(); });
+
   const glossarSearch = document.getElementById('glossar-search');
   if (glossarSearch) {
-    renderGlossarList('');
+    if (!SEARCH_INDEX) buildSearchIndex();
+    renderGlossarResults('');
     const clearBtn = document.getElementById('glossar-search-clear');
+    const suggestBox = document.getElementById('glossar-suggestions');
     glossarSearch.addEventListener('input', () => {
-      renderGlossarList(glossarSearch.value);
+      renderGlossarResults(glossarSearch.value);
       clearBtn.style.display = glossarSearch.value ? 'block' : 'none';
+      updateSuggestionsBox();
+    });
+    glossarSearch.addEventListener('focus', updateSuggestionsBox);
+    glossarSearch.addEventListener('blur', () => setTimeout(() => { suggestBox.style.display = 'none'; }, 150));
+    glossarSearch.addEventListener('keydown', (e) => {
+      const items = [...suggestBox.querySelectorAll('.suggestion-item')];
+      if (!items.length) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); suggestionIndex = Math.min(suggestionIndex + 1, items.length - 1); items.forEach((it, i) => it.classList.toggle('active', i === suggestionIndex)); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); suggestionIndex = Math.max(suggestionIndex - 1, 0); items.forEach((it, i) => it.classList.toggle('active', i === suggestionIndex)); }
+      else if (e.key === 'Enter' && suggestionIndex >= 0) { e.preventDefault(); pickSuggestion(items[suggestionIndex].dataset.value); }
+      else if (e.key === 'Escape') { suggestBox.style.display = 'none'; }
+    });
+    suggestBox.addEventListener('mousedown', (e) => {
+      const item = e.target.closest('.suggestion-item');
+      if (item) pickSuggestion(item.dataset.value);
     });
     clearBtn.addEventListener('click', () => {
       glossarSearch.value = '';
-      renderGlossarList('');
+      renderGlossarResults('');
       clearBtn.style.display = 'none';
+      suggestBox.style.display = 'none';
       glossarSearch.focus();
     });
   }
+  document.querySelectorAll('[data-jump-module]').forEach((el) =>
+    el.addEventListener('click', () => jumpToAbschnitt(el.dataset.jumpModule, el.dataset.jumpAbschnitt))
+  );
 
   const frageSend = document.getElementById('frage-send');
   if (frageSend) frageSend.addEventListener('click', handleFrageSend);
@@ -568,6 +904,7 @@ function setupPullToRefresh() {
     if (diff > 80) {
       STATE.activeModuleId = null;
       STATE.quiz = null;
+      STATE.einstufung = null;
       render();
     }
   });
