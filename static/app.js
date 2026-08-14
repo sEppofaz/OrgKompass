@@ -323,13 +323,39 @@ function renderFrage() {
   `;
 }
 
+function escapeHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 async function loadFrageVerlauf() {
   const verlauf = document.getElementById('frage-verlauf');
   if (!verlauf) return;
   try {
     const res = await fetch('/orgkompass/api/ask-history');
     const data = await res.json();
-    verlauf.innerHTML = data.history ? renderMarkdown(data.history) : '<p class="muted">Noch keine gespeicherten Fragen.</p>';
+    const items = data.history || [];
+    if (!items.length) {
+      verlauf.innerHTML = '<p class="muted">Noch keine gespeicherten Fragen.</p>';
+      return;
+    }
+    verlauf.innerHTML = items.map((item, i) => `
+      <div class="verlauf-item">
+        <button class="verlauf-frage" data-idx="${i}">
+          ${icon('chevron-right', 16)}
+          <span class="verlauf-frage-text">${escapeHtml(item.question)}</span>
+        </button>
+        <div class="verlauf-meta">${escapeHtml(item.ts)}</div>
+        <div class="verlauf-antwort markdown" id="verlauf-antwort-${i}">${renderMarkdown(item.answer)}</div>
+      </div>
+    `).join('');
+    verlauf.querySelectorAll('.verlauf-frage').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const body = document.getElementById(`verlauf-antwort-${btn.dataset.idx}`);
+        const willOpen = !body.classList.contains('open');
+        body.classList.toggle('open', willOpen);
+        btn.classList.toggle('open', willOpen);
+      });
+    });
   } catch {
     verlauf.innerHTML = '<p class="muted">Verlauf konnte nicht geladen werden.</p>';
   }

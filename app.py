@@ -1,5 +1,6 @@
 import functools
 import hmac
+import re
 import secrets
 import time
 from datetime import datetime
@@ -152,15 +153,29 @@ def content(filename):
 def ask_history():
     dbx = _dropbox_client()
     if dbx is None:
-        return jsonify({"history": ""})
+        return jsonify({"history": []})
     try:
         _, res = dbx.files_download(DROPBOX_VERLAUF_PATH)
         content = res.content.decode("utf-8")
     except dropbox.exceptions.ApiError:
         content = ""
-    entries = [e.strip() for e in content.split("\n---\n") if e.strip()]
+    entries = []
+    for block in content.split("\n---\n"):
+        block = block.strip()
+        if not block:
+            continue
+        m = re.match(
+            r"^## (?P<ts>.+?)\n\n\*\*Frage:\*\* (?P<question>.+?)\n\n\*\*Antwort:\*\* (?P<answer>.+)$",
+            block, re.DOTALL,
+        )
+        if m:
+            entries.append({
+                "ts": m.group("ts").strip(),
+                "question": m.group("question").strip(),
+                "answer": m.group("answer").strip(),
+            })
     entries.reverse()
-    return jsonify({"history": "\n\n---\n\n".join(entries)})
+    return jsonify({"history": entries})
 
 
 @app.route(f"{PREFIX}/api/ask", methods=["POST"])
