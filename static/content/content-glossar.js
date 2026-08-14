@@ -285,3 +285,19 @@ GLOSSARY.push({
   modul_ref: 'm09-change-management-2',
   synonyme: ['Schein-Modell'],
 });
+
+GLOSSARY.push({
+  term: 'Change Monitoring',
+  kurz: 'Regelmäßige, kurze Erhebungen während der Umsetzung, um früh gegensteuern zu können.',
+  erklaerung_markdown: '**Change Monitoring** begleitet eine Reorganisation mit kurzen, fokussierten Pulsmessungen während der Umsetzung, um Probleme früh zu erkennen. Zu häufiges, umfangreiches Monitoring erzeugt selbst „Change Fatigue".',
+  modul_ref: 'm10-wirksamkeit',
+  synonyme: [],
+});
+
+GLOSSARY.push({
+  term: 'Retrospektive',
+  kurz: 'Strukturierter Rückblick, der mit konkreten, terminierten Maßnahmen endet.',
+  erklaerung_markdown: 'Eine **Retrospektive** blickt strukturiert zurück und unterscheidet sich von einem Statusbericht durch Handlungsorientierung — sie endet mit konkreten Maßnahmen, nicht nur mit Beobachtungen.',
+  modul_ref: 'm10-wirksamkeit',
+  synonyme: [],
+});
