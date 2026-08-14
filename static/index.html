@@ -118,6 +118,8 @@ main {
   min-height: 44px;
   position: relative;
   overflow: hidden;
+  color: var(--text);
+  -webkit-appearance: none;
 }
 .module-card::before {
   content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
@@ -127,7 +129,7 @@ main {
 .module-card:active { box-shadow: var(--shadow-md); transform: translateY(-1px); }
 .module-card:active::before { opacity: 1; }
 .module-card svg { color: var(--icon); flex-shrink: 0; margin-left: 8px; }
-.module-card-title { font-weight: 700; letter-spacing: -.005em; }
+.module-card-title { font-weight: 700; letter-spacing: -.005em; font-size: 0.85rem; color: var(--text); }
 .module-card-desc { color: var(--muted); font-size: 0.85rem; margin-top: 3px; line-height: 1.4; }
 .muted { color: var(--muted); }
 
@@ -138,8 +140,8 @@ main {
 }
 .back-link svg { transform: rotate(180deg); }
 
-.markdown h2 { font-size: 1rem; font-weight: 800; letter-spacing: -.01em; margin: 20px 0 10px; }
-.markdown h3 { font-size: 1rem; font-weight: 700; margin: 16px 0 6px; }
+.markdown h2 { font-size: 1.18rem; font-weight: 800; letter-spacing: -.01em; margin: 20px 0 10px; color: var(--text); }
+.markdown h3 { font-size: 1.03rem; font-weight: 700; margin: 16px 0 6px; color: var(--text); }
 .markdown p { line-height: 1.6; margin: 0 0 12px; }
 .markdown strong { font-weight: 700; }
 .markdown ul { padding-left: 20px; margin: 0 0 12px; }

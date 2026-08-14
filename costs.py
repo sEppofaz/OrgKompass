@@ -47,14 +47,31 @@ def is_hard_killed_today() -> bool:
 
 def today_summary() -> dict:
     data = _load()
-    today = date.today().isoformat()
-    day = data.get("daily", {}).get(today, {"cost_usd": 0.0, "calls": 0})
+    today = date.today()
+    today_key = today.isoformat()
+    day = data.get("daily", {}).get(today_key, {"cost_usd": 0.0, "calls": 0})
+
+    month_total = year_total = 0.0
+    for day_key, day_data in data.get("daily", {}).items():
+        try:
+            d = date.fromisoformat(day_key)
+        except ValueError:
+            continue
+        cost = day_data.get("cost_usd", 0.0)
+        if d.year == today.year and d.month == today.month:
+            month_total += cost
+        if d.year == today.year:
+            year_total += cost
+
     return {
         "cost_usd": round(day.get("cost_usd", 0.0), 4),
         "calls": day.get("calls", 0),
         "warn_usd": DAILY_WARN_USD,
         "hard_kill_usd": DAILY_HARD_KILL_USD,
         "hard_killed": day.get("hard_killed", False),
+        "month_usd": round(month_total, 4),
+        "year_usd": round(year_total, 4),
+        "total_usd": round(data.get("total_cost_usd", 0.0), 4),
     }
 
 

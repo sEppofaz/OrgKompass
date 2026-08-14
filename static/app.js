@@ -334,10 +334,11 @@ async function loadFrageKosten() {
   try {
     const res = await fetch('/orgkompass/api/costs');
     const c = await res.json();
-    const cost = c.cost_usd.toFixed(4);
-    el.textContent = `Heute genutzt: $${cost} von $${c.warn_usd.toFixed(2)} (${c.calls} Frage${c.calls === 1 ? '' : 'n'})${c.hard_killed ? ' — Tageslimit erreicht' : ''}`;
+    const heute = `Heute: $${c.cost_usd.toFixed(4)} von $${c.warn_usd.toFixed(2)} (${c.calls} Frage${c.calls === 1 ? '' : 'n'})${c.hard_killed ? ' — Tageslimit erreicht' : ''}`;
+    const rest = `Monat: $${c.month_usd.toFixed(4)} · Jahr: $${c.year_usd.toFixed(4)} · Gesamt: $${c.total_usd.toFixed(4)}`;
+    el.innerHTML = `<div>${heute}</div><div>${rest}</div>`;
   } catch {
-    el.textContent = '';
+    el.innerHTML = '';
   }
 }
 
