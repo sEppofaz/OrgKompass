@@ -53,14 +53,20 @@ def _check_password(password: str) -> bool:
     return bool(real) and hmac.compare_digest(password, real)
 
 
-def _save_qa_to_dropbox(question: str, answer: str) -> None:
+def _dropbox_client() -> "dropbox.Dropbox | None":
     secrets_data = load_secrets()
     key = secrets_data.get("DROPBOX_APP_KEY", "")
     app_secret = secrets_data.get("DROPBOX_APP_SECRET", "")
     token = secrets_data.get("DROPBOX_REFRESH_TOKEN", "")
     if not (key and app_secret and token):
+        return None
+    return dropbox.Dropbox(oauth2_refresh_token=token, app_key=key, app_secret=app_secret)
+
+
+def _save_qa_to_dropbox(question: str, answer: str) -> None:
+    dbx = _dropbox_client()
+    if dbx is None:
         return
-    dbx = dropbox.Dropbox(oauth2_refresh_token=token, app_key=key, app_secret=app_secret)
     try:
         _, res = dbx.files_download(DROPBOX_VERLAUF_PATH)
         existing = res.content.decode("utf-8")
@@ -139,6 +145,22 @@ def app_js():
 @login_required
 def content(filename):
     return send_from_directory(STATIC_DIR / "content", filename)
+
+
+@app.route(f"{PREFIX}/api/ask-history")
+@login_required
+def ask_history():
+    dbx = _dropbox_client()
+    if dbx is None:
+        return jsonify({"history": ""})
+    try:
+        _, res = dbx.files_download(DROPBOX_VERLAUF_PATH)
+        content = res.content.decode("utf-8")
+    except dropbox.exceptions.ApiError:
+        content = ""
+    entries = [e.strip() for e in content.split("\n---\n") if e.strip()]
+    entries.reverse()
+    return jsonify({"history": "\n\n---\n\n".join(entries)})
 
 
 @app.route(f"{PREFIX}/api/ask", methods=["POST"])

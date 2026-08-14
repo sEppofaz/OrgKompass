@@ -318,7 +318,21 @@ function renderFrage() {
       <input type="text" id="frage-input" class="search-input" placeholder="Deine Frage…" autocomplete="off">
       <button class="btn-icon" id="frage-send">${icon('send', 20)}</button>
     </div>
+    <h2 class="page-title" style="font-size:1.05rem;margin-top:24px">Bisherige Fragen</h2>
+    <div id="frage-verlauf" class="markdown"><p class="muted">Lädt…</p></div>
   `;
+}
+
+async function loadFrageVerlauf() {
+  const verlauf = document.getElementById('frage-verlauf');
+  if (!verlauf) return;
+  try {
+    const res = await fetch('/orgkompass/api/ask-history');
+    const data = await res.json();
+    verlauf.innerHTML = data.history ? renderMarkdown(data.history) : '<p class="muted">Noch keine gespeicherten Fragen.</p>';
+  } catch {
+    verlauf.innerHTML = '<p class="muted">Verlauf konnte nicht geladen werden.</p>';
+  }
 }
 
 async function handleFrageSend() {
@@ -344,6 +358,7 @@ async function handleFrageSend() {
     } else {
       antwort.innerHTML = renderMarkdown(data.answer);
       input.value = '';
+      loadFrageVerlauf();
     }
   } catch {
     antwort.innerHTML = '<p class="muted">Verbindungsfehler — bitte erneut versuchen.</p>';
@@ -456,6 +471,7 @@ function wireEvents() {
   if (frageSend) frageSend.addEventListener('click', handleFrageSend);
   const frageInput = document.getElementById('frage-input');
   if (frageInput) frageInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleFrageSend(); });
+  if (document.getElementById('frage-verlauf')) loadFrageVerlauf();
 }
 
 /* ---------- Info-Sheet ---------- */
