@@ -168,3 +168,31 @@ DIAGRAMS['business-partner-modell'] = function () {
     <text x="265" y="146" text-anchor="middle" fill="var(--muted)" font-size="8.5"><tspan x="265" dy="0">Standard-</tspan><tspan x="265" dy="11">prozesse</tspan></text>
   </svg>`;
 };
+
+DIAGRAMS['hay-faktoren'] = function () {
+  return `<svg viewBox="0 0 320 165" role="img" aria-label="Hay-Methode: drei Faktoren ergeben den Gesamtpunktwert">
+    <defs>
+      <marker id="arrowhay" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--icon)"/>
+      </marker>
+    </defs>
+    <rect x="8" y="14" width="90" height="54" rx="8" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="53" y="46" text-anchor="middle" fill="var(--text)" font-size="10">Know-how</text>
+
+    <text x="106" y="46" text-anchor="middle" fill="var(--icon)" font-size="14">+</text>
+
+    <rect x="115" y="14" width="90" height="54" rx="8" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="160" y="38" text-anchor="middle" fill="var(--text)" font-size="10"><tspan x="160" dy="0">Problem-</tspan><tspan x="160" dy="13">lösung</tspan></text>
+
+    <text x="213" y="46" text-anchor="middle" fill="var(--icon)" font-size="14">+</text>
+
+    <rect x="222" y="14" width="90" height="54" rx="8" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="267" y="38" text-anchor="middle" fill="var(--text)" font-size="10"><tspan x="267" dy="0">Verant-</tspan><tspan x="267" dy="13">wortung</tspan></text>
+
+    <line x1="160" y1="70" x2="160" y2="106" stroke="var(--icon)" stroke-width="1.5" marker-end="url(#arrowhay)"/>
+
+    <rect x="60" y="112" width="200" height="46" rx="8" fill="var(--bg2)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="160" y="132" text-anchor="middle" fill="var(--text)" font-size="10" font-weight="600">Gesamtpunktwert</text>
+    <text x="160" y="147" text-anchor="middle" fill="var(--muted)" font-size="9">→ Job Grade</text>
+  </svg>`;
+};

@@ -109,3 +109,35 @@ GLOSSARY.push({
   modul_ref: 'm02-strukturgestaltung',
   synonyme: ['CoE', 'Center of Expertise'],
 });
+
+GLOSSARY.push({
+  term: 'Hay-Methode',
+  kurz: 'Weltweit verbreitetes analytisches Stellenbewertungsverfahren mit den drei Faktoren Know-how, Problemlösung, Verantwortung.',
+  erklaerung_markdown: 'Die **Hay-Methode** (Hay Guide Chart-Profile Method) bewertet jede Stelle entlang dreier Faktoren — **Know-how**, **Problemlösung** und **Verantwortung** — über standardisierte Guide Charts. Die Summe der Punktwerte ergibt den Gesamtpunktwert und damit die Zuordnung zu einem Job Grade.',
+  modul_ref: 'm03-funktionsbewertung',
+  synonyme: ['Hay Guide Chart-Profile Method'],
+});
+
+GLOSSARY.push({
+  term: 'Job Grading',
+  kurz: 'Einordnung von Stellen mit ähnlichem Bewertungspunktwert in gemeinsame Stellenklassen (Job Grades).',
+  erklaerung_markdown: 'Beim **Job Grading** werden Stellen mit ähnlichem Bewertungspunktwert (z. B. aus der Hay-Methode) zu **Job Grades** (Stellenklassen) zusammengefasst — die Basis für konsistente Vergütungsbänder über die gesamte Organisation.',
+  modul_ref: 'm03-funktionsbewertung',
+  synonyme: ['Stellenklasse'],
+});
+
+GLOSSARY.push({
+  term: 'Funktionsbeschreibung',
+  kurz: 'Beschreibung von Zweck, Aufgaben, Einordnung und Befugnissen einer Stelle — Grundlage jeder Stellenbewertung.',
+  erklaerung_markdown: 'Eine belastbare **Funktionsbeschreibung** enthält Zweck der Stelle, Hauptaufgaben, Einordnung im Organigramm, Entscheidungsbefugnisse und Schnittstellen. Sie beschreibt **Verantwortung und Wirkung**, nicht nur Tätigkeiten — nur so lassen sich daraus Bewertungsfaktoren wie bei der Hay-Methode sauber ableiten.',
+  modul_ref: 'm03-funktionsbewertung',
+  synonyme: ['Stellenbeschreibung'],
+});
+
+GLOSSARY.push({
+  term: 'Marktbenchmarking',
+  kurz: 'Abgleich interner Vergütung mit externen Marktstudien nach Branche, Region und Unternehmensgröße.',
+  erklaerung_markdown: '**Marktbenchmarking** gleicht Vergütungsdaten mit spezialisierten Vergütungsstudien ab und ergänzt die interne Stellenbewertung (Job Grading) um die externe Perspektive: Ist die Vergütung am Arbeitsmarkt wettbewerbsfähig?',
+  modul_ref: 'm03-funktionsbewertung',
+  synonyme: ['Vergütungsbenchmarking'],
+});
