@@ -40,6 +40,10 @@ Siehe `~/.claude/plans/erstelle-mir-eine-umf-ngliche-stateful-sunrise.md` (Origi
 - Content-Dateien müssen an zwei Stellen registriert werden (s.o.).
 - `CLAUDE_API_KEY` (nicht `ANTHROPIC_API_KEY`) in secrets.env — projektübergreifende Namenskonvention lt. `PKA/BKM/Claude-API-Verwendung.md`.
 
+## Offen: PWA-Standard „Tab-Leiste am unteren Bildschirmrand" nachziehen
+
+Neuer PKA-Standard seit 2026-08-14 (`PKA/BKM/PWA-Standards.md`), bereits in 7 anderen Apps umgesetzt. Bei OrgKompass bewusst zurückgestellt, solange die App noch aktiv gebaut wird (Stand 2026-08-14: Phase 2 von 6) – bei Abschluss der App bzw. bei der nächsten größeren UI-Überarbeitung nachziehen.
+
 ## Lokale Entwicklung
 
 ```bash
