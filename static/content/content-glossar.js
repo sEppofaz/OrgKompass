@@ -269,3 +269,19 @@ GLOSSARY.push({
   modul_ref: 'm08-change-management-1',
   synonyme: ['Change Curve'],
 });
+
+GLOSSARY.push({
+  term: 'Macht-Interesse-Matrix',
+  kurz: 'Ordnet Stakeholder nach Einfluss (Macht) und Betroffenheit (Interesse) in vier Bearbeitungsstrategien.',
+  erklaerung_markdown: 'Die **Macht-Interesse-Matrix** ordnet Stakeholder in vier Quadranten: eng einbinden (hohe Macht/hohes Interesse), zufriedenstellen (hohe Macht/geringes Interesse), informiert halten (geringe Macht/hohes Interesse), minimaler Aufwand (beides gering). Sollte im Projektverlauf wiederholt aktualisiert werden.',
+  modul_ref: 'm09-change-management-2',
+  synonyme: ['Stakeholder-Mapping'],
+});
+
+GLOSSARY.push({
+  term: 'Kulturebenen nach Schein',
+  kurz: 'Drei Ebenen der Unternehmenskultur: Artefakte, bekundete Werte, Grundannahmen.',
+  erklaerung_markdown: 'Edgar Schein unterscheidet **Artefakte** (sichtbar), **bekundete Werte** (offiziell kommuniziert) und **Grundannahmen** (unbewusst, verhaltenssteuernd). Reorganisationen verändern Artefakte schnell, Grundannahmen deutlich langsamer.',
+  modul_ref: 'm09-change-management-2',
+  synonyme: ['Schein-Modell'],
+});

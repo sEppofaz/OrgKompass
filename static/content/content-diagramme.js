@@ -327,3 +327,23 @@ DIAGRAMS['change-curve'] = function () {
     <text x="290" y="188" text-anchor="middle" fill="var(--muted)" font-size="8">Integration</text>
   </svg>`;
 };
+
+DIAGRAMS['stakeholder-matrix'] = function () {
+  return `<svg viewBox="0 0 320 200" role="img" aria-label="Stakeholder Macht-Interesse-Matrix">
+    <rect x="5" y="5" width="150" height="85" rx="8" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="80" y="42" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="600">Eng einbinden</text>
+    <text x="80" y="58" text-anchor="middle" fill="var(--muted)" font-size="8.5">Macht hoch · Interesse hoch</text>
+
+    <rect x="165" y="5" width="150" height="85" rx="8" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="240" y="42" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="600">Zufriedenstellen</text>
+    <text x="240" y="58" text-anchor="middle" fill="var(--muted)" font-size="8.5">Macht hoch · Interesse gering</text>
+
+    <rect x="5" y="100" width="150" height="85" rx="8" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="80" y="137" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="600">Informiert halten</text>
+    <text x="80" y="153" text-anchor="middle" fill="var(--muted)" font-size="8.5">Macht gering · Interesse hoch</text>
+
+    <rect x="165" y="100" width="150" height="85" rx="8" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="240" y="137" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="600">Minimaler Aufwand</text>
+    <text x="240" y="153" text-anchor="middle" fill="var(--muted)" font-size="8.5">Macht gering · Interesse gering</text>
+  </svg>`;
+};
