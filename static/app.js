@@ -318,6 +318,7 @@ function renderFrage() {
       <input type="text" id="frage-input" class="search-input" placeholder="Deine Frage…" autocomplete="off">
       <button class="btn-icon" id="frage-send">${icon('send', 20)}</button>
     </div>
+    <div id="frage-kosten" class="muted" style="font-size:.78rem;margin-top:8px"></div>
     <h2 class="page-title" style="font-size:1.05rem;margin-top:24px">Bisherige Fragen</h2>
     <div id="frage-verlauf" class="markdown"><p class="muted">Lädt…</p></div>
   `;
@@ -325,6 +326,19 @@ function renderFrage() {
 
 function escapeHtml(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+async function loadFrageKosten() {
+  const el = document.getElementById('frage-kosten');
+  if (!el) return;
+  try {
+    const res = await fetch('/orgkompass/api/costs');
+    const c = await res.json();
+    const cost = c.cost_usd.toFixed(4);
+    el.textContent = `Heute genutzt: $${cost} von $${c.warn_usd.toFixed(2)} (${c.calls} Frage${c.calls === 1 ? '' : 'n'})${c.hard_killed ? ' — Tageslimit erreicht' : ''}`;
+  } catch {
+    el.textContent = '';
+  }
 }
 
 async function loadFrageVerlauf() {
@@ -385,6 +399,7 @@ async function handleFrageSend() {
       antwort.innerHTML = renderMarkdown(data.answer);
       input.value = '';
       loadFrageVerlauf();
+      loadFrageKosten();
     }
   } catch {
     antwort.innerHTML = '<p class="muted">Verbindungsfehler — bitte erneut versuchen.</p>';
@@ -497,7 +512,7 @@ function wireEvents() {
   if (frageSend) frageSend.addEventListener('click', handleFrageSend);
   const frageInput = document.getElementById('frage-input');
   if (frageInput) frageInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleFrageSend(); });
-  if (document.getElementById('frage-verlauf')) loadFrageVerlauf();
+  if (document.getElementById('frage-verlauf')) { loadFrageVerlauf(); loadFrageKosten(); }
 }
 
 /* ---------- Info-Sheet ---------- */

@@ -148,6 +148,12 @@ def content(filename):
     return send_from_directory(STATIC_DIR / "content", filename)
 
 
+@app.route(f"{PREFIX}/api/costs")
+@login_required
+def costs_today():
+    return jsonify(costs.today_summary())
+
+
 @app.route(f"{PREFIX}/api/ask-history")
 @login_required
 def ask_history():

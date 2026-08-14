@@ -1,4 +1,4 @@
-const CACHE_NAME = 'orgkompass-v14';
+const CACHE_NAME = 'orgkompass-v15';
 
 const SHELL = [
   './',

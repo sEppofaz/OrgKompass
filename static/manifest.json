@@ -2,7 +2,7 @@
   "name": "OrgKompass",
   "short_name": "OrgKompass",
   "description": "Lern-App für Organisationsberatung",
-  "start_url": "./index.html",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#f2f2f7",
   "theme_color": "#f2f2f7",

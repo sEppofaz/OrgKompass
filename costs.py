@@ -45,6 +45,19 @@ def is_hard_killed_today() -> bool:
     return data.get("daily", {}).get(today, {}).get("hard_killed", False)
 
 
+def today_summary() -> dict:
+    data = _load()
+    today = date.today().isoformat()
+    day = data.get("daily", {}).get(today, {"cost_usd": 0.0, "calls": 0})
+    return {
+        "cost_usd": round(day.get("cost_usd", 0.0), 4),
+        "calls": day.get("calls", 0),
+        "warn_usd": DAILY_WARN_USD,
+        "hard_kill_usd": DAILY_HARD_KILL_USD,
+        "hard_killed": day.get("hard_killed", False),
+    }
+
+
 def record_call(model: str, input_tokens: int, output_tokens: int, context: str) -> dict:
     price = PRICING.get(model, _DEFAULT_PRICE)
     cost_usd = input_tokens * price["input"] + output_tokens * price["output"]
