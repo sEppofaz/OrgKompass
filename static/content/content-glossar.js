@@ -301,3 +301,19 @@ GLOSSARY.push({
   modul_ref: 'm10-wirksamkeit',
   synonyme: [],
 });
+
+GLOSSARY.push({
+  term: 'Machtdistanz',
+  kurz: 'Hofstede-Dimension: wie selbstverständlich ungleiche Machtverteilung in einer Kultur akzeptiert wird.',
+  erklaerung_markdown: 'Die **Machtdistanz** (Hofstede) beeinflusst, wie Strukturen akzeptiert werden: In Kulturen mit hoher Machtdistanz werden steile Hierarchien eher erwartet — eine flache Struktur kann dort als Führungsschwäche wirken.',
+  modul_ref: 'm11-international',
+  synonyme: [],
+});
+
+GLOSSARY.push({
+  term: 'Global vs. lokal',
+  kurz: 'Grundspannung zwischen globaler Standardisierung und lokaler Anpassung in internationalen Organisationen.',
+  erklaerung_markdown: 'Die Spannung zwischen **globaler Standardisierung** (Effizienz, Konsistenz) und **lokaler Anpassung** (Marktnähe, Akzeptanz) — internationale Variante der Zentralisierungsfrage aus Modul 2. Meist funktionsspezifisch gelöst.',
+  modul_ref: 'm11-international',
+  synonyme: [],
+});
