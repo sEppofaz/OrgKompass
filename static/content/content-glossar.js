@@ -189,3 +189,35 @@ GLOSSARY.push({
   modul_ref: 'm05-analyse-diagnostik',
   synonyme: [],
 });
+
+GLOSSARY.push({
+  term: 'Prozesseigner',
+  kurz: 'Person mit klarer, abteilungsübergreifender Verantwortung für Prozessergebnis und -verbesserung.',
+  erklaerung_markdown: 'Der **Prozesseigner** (Process Owner) trägt Verantwortung für Ergebnis und Verbesserung eines Prozesses über Abteilungsgrenzen hinweg — ohne diese Rolle bleibt Prozessverbesserung eine Absichtserklärung ohne Durchgriff.',
+  modul_ref: 'm06-prozessoptimierung',
+  synonyme: ['Process Owner'],
+});
+
+GLOSSARY.push({
+  term: 'RACI-Matrix',
+  kurz: 'Werkzeug, das für jede Aufgabe Responsible, Accountable, Consulted und Informed klärt.',
+  erklaerung_markdown: 'Die **RACI-Matrix** klärt pro Aufgabe: **R**esponsible (führt aus), **A**ccountable (entscheidet, genau eine Person), **C**onsulted (wird vorab einbezogen), **I**nformed (wird danach informiert). Häufigster Fehler: mehrere „Accountable"-Rollen pro Aufgabe.',
+  modul_ref: 'm06-prozessoptimierung',
+  synonyme: [],
+});
+
+GLOSSARY.push({
+  term: 'Schnittstellenmanagement',
+  kurz: 'Explizite Gestaltung von Übergabepunkten zwischen Stellen, Abteilungen oder Organisationen.',
+  erklaerung_markdown: 'Schnittstellenmanagement macht Übergänge zwischen Stellen explizit — klare Übergabepunkte, definierte Austauschformate, eindeutige Zuständigkeit — und beugt so Doppelarbeit, Lücken und Medienbrüchen vor.',
+  modul_ref: 'm06-prozessoptimierung',
+  synonyme: [],
+});
+
+GLOSSARY.push({
+  term: 'Wertstromanalyse',
+  kurz: 'Methode aus dem Lean Management, die wertschöpfende von nicht-wertschöpfenden Prozessschritten trennt.',
+  erklaerung_markdown: 'Die **Wertstromanalyse** (Value Stream Mapping) bildet einen Prozess von Anfang bis Ende ab und trennt wertschöpfende von nicht-wertschöpfenden Schritten. Macht oft sichtbar, dass Wartezeiten zwischen Übergaben den größten Optimierungshebel bieten.',
+  modul_ref: 'm06-prozessoptimierung',
+  synonyme: ['Value Stream Mapping'],
+});

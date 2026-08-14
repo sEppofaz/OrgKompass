@@ -244,3 +244,50 @@ DIAGRAMS['swot-matrix'] = function () {
     <text x="240" y="155" text-anchor="middle" fill="var(--muted)" font-size="9">(extern)</text>
   </svg>`;
 };
+
+DIAGRAMS['raci-matrix'] = function () {
+  return `<svg viewBox="0 0 320 140" role="img" aria-label="RACI-Matrix Beispiel">
+    <rect x="4" y="4" width="86" height="26" fill="var(--bg2)" stroke="var(--border)" stroke-width="1"/>
+    <rect x="90" y="4" width="56" height="26" fill="var(--bg2)" stroke="var(--border)" stroke-width="1"/>
+    <text x="118" y="21" text-anchor="middle" fill="var(--muted)" font-size="9.5">Linie</text>
+    <rect x="146" y="4" width="56" height="26" fill="var(--bg2)" stroke="var(--border)" stroke-width="1"/>
+    <text x="174" y="21" text-anchor="middle" fill="var(--muted)" font-size="9.5">HR</text>
+    <rect x="202" y="4" width="56" height="26" fill="var(--bg2)" stroke="var(--border)" stroke-width="1"/>
+    <text x="230" y="21" text-anchor="middle" fill="var(--muted)" font-size="9.5">Finance</text>
+    <rect x="258" y="4" width="56" height="26" fill="var(--bg2)" stroke="var(--border)" stroke-width="1"/>
+    <text x="286" y="21" text-anchor="middle" fill="var(--muted)" font-size="9.5">IT</text>
+
+    <rect x="4" y="30" width="86" height="34" fill="none" stroke="var(--border)" stroke-width="1"/>
+    <text x="10" y="51" fill="var(--muted)" font-size="9.5">Aufgabe 1</text>
+    <rect x="90" y="30" width="56" height="34" fill="none" stroke="var(--border)" stroke-width="1"/>
+    <text x="118" y="51" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="700">R</text>
+    <rect x="146" y="30" width="56" height="34" fill="none" stroke="var(--border)" stroke-width="1"/>
+    <text x="174" y="51" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="700">A</text>
+    <rect x="202" y="30" width="56" height="34" fill="none" stroke="var(--border)" stroke-width="1"/>
+    <text x="230" y="51" text-anchor="middle" fill="var(--muted)" font-size="12">C</text>
+    <rect x="258" y="30" width="56" height="34" fill="none" stroke="var(--border)" stroke-width="1"/>
+    <text x="286" y="51" text-anchor="middle" fill="var(--muted)" font-size="12">I</text>
+
+    <rect x="4" y="64" width="86" height="34" fill="none" stroke="var(--border)" stroke-width="1"/>
+    <text x="10" y="85" fill="var(--muted)" font-size="9.5">Aufgabe 2</text>
+    <rect x="90" y="64" width="56" height="34" fill="none" stroke="var(--border)" stroke-width="1"/>
+    <text x="118" y="85" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="700">A</text>
+    <rect x="146" y="64" width="56" height="34" fill="none" stroke="var(--border)" stroke-width="1"/>
+    <text x="174" y="85" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="700">R</text>
+    <rect x="202" y="64" width="56" height="34" fill="none" stroke="var(--border)" stroke-width="1"/>
+    <text x="230" y="85" text-anchor="middle" fill="var(--muted)" font-size="12">I</text>
+    <rect x="258" y="64" width="56" height="34" fill="none" stroke="var(--border)" stroke-width="1"/>
+    <text x="286" y="85" text-anchor="middle" fill="var(--muted)" font-size="12">C</text>
+
+    <rect x="4" y="98" width="86" height="34" fill="none" stroke="var(--border)" stroke-width="1"/>
+    <text x="10" y="119" fill="var(--muted)" font-size="9.5">Aufgabe 3</text>
+    <rect x="90" y="98" width="56" height="34" fill="none" stroke="var(--border)" stroke-width="1"/>
+    <text x="118" y="119" text-anchor="middle" fill="var(--muted)" font-size="12">C</text>
+    <rect x="146" y="98" width="56" height="34" fill="none" stroke="var(--border)" stroke-width="1"/>
+    <text x="174" y="119" text-anchor="middle" fill="var(--muted)" font-size="12">I</text>
+    <rect x="202" y="98" width="56" height="34" fill="none" stroke="var(--border)" stroke-width="1"/>
+    <text x="230" y="119" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="700">R</text>
+    <rect x="258" y="98" width="56" height="34" fill="none" stroke="var(--border)" stroke-width="1"/>
+    <text x="286" y="119" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="700">A</text>
+  </svg>`;
+};
