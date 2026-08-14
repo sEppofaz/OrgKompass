@@ -221,3 +221,19 @@ GLOSSARY.push({
   modul_ref: 'm06-prozessoptimierung',
   synonyme: ['Value Stream Mapping'],
 });
+
+GLOSSARY.push({
+  term: 'Co-Creation',
+  kurz: 'Gemeinsame Entwicklung von Organisationslösungen mit den Betroffenen statt reiner Expertenlösung von außen.',
+  erklaerung_markdown: '**Co-Creation** entwickelt Organisationslösungen gemeinsam mit den Betroffenen. Höherer Moderationsaufwand, dafür höhere Akzeptanz und Umsetzungsgeschwindigkeit, weil Widerstände früher sichtbar und bearbeitet werden.',
+  modul_ref: 'm07-co-creation',
+  synonyme: [],
+});
+
+GLOSSARY.push({
+  term: 'Prozessbegleitung',
+  kurz: 'Beraterrolle, die den Gestaltungsprozess moderiert, ohne selbst inhaltliche Lösungen vorzugeben.',
+  erklaerung_markdown: 'Die **Prozessbegleitung** ist der Gegenpol zur Expertenrolle: Der Berater moderiert, damit die Organisation die Lösung selbst entwickelt. Sinnvoll, wenn nachhaltige Verankerung und Akzeptanz entscheidend sind.',
+  modul_ref: 'm07-co-creation',
+  synonyme: ['Prozessberatung'],
+});
