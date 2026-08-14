@@ -4,3 +4,4 @@ __pycache__/
 .session_key
 claude_costs.json
 .DS_Store
+fragen-verlauf.md
