@@ -53,3 +53,59 @@ GLOSSARY.push({
   modul_ref: 'm01-grundlagen',
   synonyme: ['Mintzberg-Typologie'],
 });
+
+GLOSSARY.push({
+  term: 'Leitungsspanne',
+  kurz: 'Anzahl der Mitarbeitenden, die einer Führungskraft direkt unterstellt sind.',
+  erklaerung_markdown: 'Die **Leitungsspanne** (Kontrollspanne) bestimmt maßgeblich die Form der Organisation: Eine große Spanne führt zu flachen Organisationen mit wenigen Ebenen, eine kleine Spanne zu steilen Organisationen mit vielen Ebenen.',
+  modul_ref: 'm02-strukturgestaltung',
+  synonyme: ['Kontrollspanne', 'Führungsspanne'],
+});
+
+GLOSSARY.push({
+  term: 'Stabsorganisation',
+  kurz: 'Linienorganisation, ergänzt um beratende Stabsstellen ohne eigene Weisungsbefugnis.',
+  erklaerung_markdown: 'In der **Stabsorganisation** bündeln Stabsstellen (z. B. Unternehmensplanung, Recht, Controlling) Spezialwissen und beraten die Linie fachlich — sie haben aber **keine eigene Weisungsbefugnis** gegenüber der Linie.',
+  modul_ref: 'm02-strukturgestaltung',
+  synonyme: ['Linien-Stab-Organisation'],
+});
+
+GLOSSARY.push({
+  term: 'Matrixorganisation',
+  kurz: 'Organisationsform mit zwei gleichberechtigten Dimensionen (z. B. Funktion und Projekt) und doppelter Berichtslinie.',
+  erklaerung_markdown: 'Die **Matrixorganisation** überlagert zwei gleichberechtigte Dimensionen — typischerweise Funktion und Region oder Funktion und Projekt — mit doppelter Berichtslinie. Praktische Anwendungsform des Mehrliniensystems; bündelt Ressourcen, erzeugt aber erhöhtes Konfliktpotenzial durch geteilte Macht.',
+  modul_ref: 'm02-strukturgestaltung',
+  synonyme: [],
+});
+
+GLOSSARY.push({
+  term: 'Netzwerkorganisation',
+  kurz: 'Rechtlich selbstständige, lose gekoppelte Einheiten koordinieren sich über Verträge/Kooperation statt Hierarchie.',
+  erklaerung_markdown: 'Die **Netzwerkorganisation** löst sich am weitesten von der klassischen Hierarchie: rechtlich selbstständige Einheiten koordinieren sich über Verträge, Kooperationen oder gemeinsame Plattformen — etwa strategische Allianzen, Franchise-Systeme oder Ökosystem-Partnerschaften.',
+  modul_ref: 'm02-strukturgestaltung',
+  synonyme: [],
+});
+
+GLOSSARY.push({
+  term: 'Business-Partner-Modell',
+  kurz: 'Modell (nach Dave Ulrich), das Zentralfunktionen in Business Partner, Center of Expertise und Shared Services aufteilt.',
+  erklaerung_markdown: 'Das **Business-Partner-Modell** trennt drei Rollen: der **Business Partner** berät Fachbereiche strategisch vor Ort, das **Center of Expertise** bündelt Spezialwissen, das **Shared Services Center** wickelt standardisierte Tätigkeiten zentral ab. Ursprünglich für HR entwickelt, heute auch in Finance und IT verbreitet.',
+  modul_ref: 'm02-strukturgestaltung',
+  synonyme: ['Ulrich-Modell', 'HR-Business-Partner-Modell'],
+});
+
+GLOSSARY.push({
+  term: 'Shared Services Center',
+  kurz: 'Zentrale Einheit, die standardisierte, transaktionale Tätigkeiten mehrerer Geschäftsbereiche bündelt.',
+  erklaerung_markdown: 'Ein **Shared Services Center (SSC)** bündelt standardisierte, transaktionale Tätigkeiten (z. B. Gehaltsabrechnung, IT-Helpdesk) zentral — Nutzen sind Skaleneffekte und einheitliche Prozesse. Gesteuert wird die Servicequalität meist über **Service Level Agreements (SLAs)**.',
+  modul_ref: 'm02-strukturgestaltung',
+  synonyme: ['SSC'],
+});
+
+GLOSSARY.push({
+  term: 'Center of Excellence',
+  kurz: 'Zentrale Einheit, die Spezialwissen zu einem Fachthema bündelt und konzernweit als interne Beratung anbietet.',
+  erklaerung_markdown: 'Ein **Center of Excellence (CoE)** — auch Center of Expertise genannt — skaliert nicht Transaktionsvolumen wie ein Shared Services Center, sondern **Expertise**: Es bündelt Spezialwissen zu einem Fachthema (z. B. Compensation & Benefits, M&A, Data Analytics) und stellt es konzernweit zur Verfügung.',
+  modul_ref: 'm02-strukturgestaltung',
+  synonyme: ['CoE', 'Center of Expertise'],
+});

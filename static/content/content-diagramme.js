@@ -79,3 +79,92 @@ DIAGRAMS['mintzberg-5-konfigurationen'] = function () {
     <text x="214" y="142" text-anchor="middle" fill="var(--text)" font-size="10">Adhokratie</text>
   </svg>`;
 };
+
+DIAGRAMS['flach-steil-hierarchie'] = function () {
+  return `<svg viewBox="0 0 320 165" role="img" aria-label="Flache vs. steile Organisation">
+    <text x="80" y="12" text-anchor="middle" fill="var(--muted)" font-size="11" font-weight="600">Flache Organisation</text>
+    <rect x="52" y="20" width="56" height="24" rx="6" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="80" y="36" text-anchor="middle" fill="var(--text)" font-size="10">Leitung</text>
+    <rect x="8" y="90" width="30" height="24" rx="5" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <rect x="44" y="90" width="30" height="24" rx="5" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <rect x="80" y="90" width="30" height="24" rx="5" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <rect x="116" y="90" width="30" height="24" rx="5" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <line x1="80" y1="44" x2="23" y2="90" stroke="var(--icon)" stroke-width="1.2"/>
+    <line x1="80" y1="44" x2="59" y2="90" stroke="var(--icon)" stroke-width="1.2"/>
+    <line x1="80" y1="44" x2="95" y2="90" stroke="var(--icon)" stroke-width="1.2"/>
+    <line x1="80" y1="44" x2="131" y2="90" stroke="var(--icon)" stroke-width="1.2"/>
+
+    <line x1="160" y1="8" x2="160" y2="155" stroke="var(--border)" stroke-width="1"/>
+
+    <text x="241" y="12" text-anchor="middle" fill="var(--muted)" font-size="11" font-weight="600">Steile Organisation</text>
+    <rect x="213" y="20" width="56" height="22" rx="6" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="241" y="35" text-anchor="middle" fill="var(--text)" font-size="10">Leitung</text>
+    <rect x="180" y="68" width="50" height="20" rx="5" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <rect x="250" y="68" width="50" height="20" rx="5" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <rect x="168" y="116" width="34" height="22" rx="5" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <rect x="206" y="116" width="34" height="22" rx="5" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <rect x="244" y="116" width="34" height="22" rx="5" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <rect x="282" y="116" width="34" height="22" rx="5" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <line x1="241" y1="42" x2="205" y2="68" stroke="var(--icon)" stroke-width="1.2"/>
+    <line x1="241" y1="42" x2="275" y2="68" stroke="var(--icon)" stroke-width="1.2"/>
+    <line x1="205" y1="88" x2="185" y2="116" stroke="var(--icon)" stroke-width="1.2"/>
+    <line x1="205" y1="88" x2="223" y2="116" stroke="var(--icon)" stroke-width="1.2"/>
+    <line x1="275" y1="88" x2="261" y2="116" stroke="var(--icon)" stroke-width="1.2"/>
+    <line x1="275" y1="88" x2="299" y2="116" stroke="var(--icon)" stroke-width="1.2"/>
+  </svg>`;
+};
+
+DIAGRAMS['matrix-organisation'] = function () {
+  return `<svg viewBox="0 0 320 195" role="img" aria-label="Matrixorganisation: Funktion x Projekt">
+    <rect x="70" y="6" width="64" height="36" fill="none" stroke="var(--border)" stroke-width="1.2"/>
+    <text x="102" y="28" text-anchor="middle" fill="var(--muted)" font-size="9.5">Projekt A</text>
+    <rect x="134" y="6" width="64" height="36" fill="none" stroke="var(--border)" stroke-width="1.2"/>
+    <text x="166" y="28" text-anchor="middle" fill="var(--muted)" font-size="9.5">Projekt B</text>
+    <rect x="198" y="6" width="64" height="36" fill="none" stroke="var(--border)" stroke-width="1.2"/>
+    <text x="230" y="28" text-anchor="middle" fill="var(--muted)" font-size="9.5">Projekt C</text>
+
+    <rect x="6" y="42" width="64" height="38" fill="none" stroke="var(--border)" stroke-width="1.2"/>
+    <text x="38" y="65" text-anchor="middle" fill="var(--muted)" font-size="9.5">Vertrieb</text>
+    <rect x="6" y="80" width="64" height="38" fill="none" stroke="var(--border)" stroke-width="1.2"/>
+    <text x="38" y="103" text-anchor="middle" fill="var(--muted)" font-size="9.5">Produktion</text>
+    <rect x="6" y="118" width="64" height="38" fill="none" stroke="var(--border)" stroke-width="1.2"/>
+    <text x="38" y="141" text-anchor="middle" fill="var(--muted)" font-size="9.5">IT</text>
+
+    <rect x="70" y="42" width="64" height="38" fill="none" stroke="var(--border)" stroke-width="1"/>
+    <rect x="198" y="42" width="64" height="38" fill="none" stroke="var(--border)" stroke-width="1"/>
+    <rect x="70" y="118" width="64" height="38" fill="none" stroke="var(--border)" stroke-width="1"/>
+    <rect x="134" y="118" width="64" height="38" fill="none" stroke="var(--border)" stroke-width="1"/>
+    <rect x="198" y="118" width="64" height="38" fill="none" stroke="var(--border)" stroke-width="1"/>
+
+    <rect x="134" y="80" width="64" height="38" fill="var(--bg2)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="166" y="103" text-anchor="middle" fill="var(--text)" font-size="10" font-weight="600">MA</text>
+
+    <text x="160" y="180" text-anchor="middle" fill="var(--muted)" font-size="9.5">Markierte Zelle: doppelte Berichtslinie</text>
+  </svg>`;
+};
+
+DIAGRAMS['business-partner-modell'] = function () {
+  return `<svg viewBox="0 0 320 195" role="img" aria-label="Business-Partner-Modell mit CoE und Shared Services">
+    <rect x="60" y="8" width="200" height="32" rx="8" fill="var(--bg2)" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="160" y="29" text-anchor="middle" fill="var(--text)" font-size="10.5">Business / Fachbereiche</text>
+
+    <line x1="160" y1="40" x2="55" y2="88" stroke="var(--icon)" stroke-width="1.2"/>
+    <line x1="160" y1="40" x2="160" y2="88" stroke="var(--icon)" stroke-width="1.2"/>
+    <line x1="160" y1="40" x2="265" y2="88" stroke="var(--icon)" stroke-width="1.2"/>
+
+    <rect x="10" y="88" width="90" height="78" rx="8" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="55" y="112" text-anchor="middle" fill="var(--text)" font-size="10" font-weight="600">Business</text>
+    <text x="55" y="126" text-anchor="middle" fill="var(--text)" font-size="10" font-weight="600">Partner</text>
+    <text x="55" y="146" text-anchor="middle" fill="var(--muted)" font-size="8.5"><tspan x="55" dy="0">Strategie,</tspan><tspan x="55" dy="11">vor Ort</tspan></text>
+
+    <rect x="115" y="88" width="90" height="78" rx="8" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="160" y="112" text-anchor="middle" fill="var(--text)" font-size="10" font-weight="600">Center of</text>
+    <text x="160" y="126" text-anchor="middle" fill="var(--text)" font-size="10" font-weight="600">Expertise</text>
+    <text x="160" y="146" text-anchor="middle" fill="var(--muted)" font-size="8.5">Fachwissen</text>
+
+    <rect x="220" y="88" width="90" height="78" rx="8" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+    <text x="265" y="112" text-anchor="middle" fill="var(--text)" font-size="10" font-weight="600">Shared</text>
+    <text x="265" y="126" text-anchor="middle" fill="var(--text)" font-size="10" font-weight="600">Services</text>
+    <text x="265" y="146" text-anchor="middle" fill="var(--muted)" font-size="8.5"><tspan x="265" dy="0">Standard-</tspan><tspan x="265" dy="11">prozesse</tspan></text>
+  </svg>`;
+};
