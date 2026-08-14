@@ -217,9 +217,9 @@ const STATE = {
 
 const TABS = [
   { id: 'lernen', label: 'Lernen', icon: 'book-open' },
-  { id: 'notizen', label: 'Notizen', icon: 'edit-3' },
   { id: 'glossar', label: 'Glossar', icon: 'library' },
   { id: 'frage', label: 'Frage', icon: 'message-circle' },
+  { id: 'notizen', label: 'Notizen', icon: 'edit-3' },
   { id: 'quiz', label: 'Quiz', icon: 'list-checks' },
   { id: 'fortschritt', label: 'Fortschritt', icon: 'bar-chart-3' },
 ];
