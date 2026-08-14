@@ -237,3 +237,35 @@ GLOSSARY.push({
   modul_ref: 'm07-co-creation',
   synonyme: ['Prozessberatung'],
 });
+
+GLOSSARY.push({
+  term: 'Lewins 3-Phasen-Modell',
+  kurz: 'Ältestes Change-Modell: Unfreezing, Changing, Refreezing.',
+  erklaerung_markdown: '**Unfreezing** (Muster auflockern), **Changing** (Veränderung durchführen), **Refreezing** (neue Situation stabilisieren). Dient meist als Grundgerüst, das durch detailliertere Modelle wie Kotter oder ADKAR ausgefüllt wird.',
+  modul_ref: 'm08-change-management-1',
+  synonyme: ['Unfreeze-Change-Refreeze'],
+});
+
+GLOSSARY.push({
+  term: "Kotters 8-Stufen-Modell",
+  kurz: 'Acht Stufen von „Dringlichkeit erzeugen" bis „in der Kultur verankern".',
+  erklaerung_markdown: 'John Kotters Modell konkretisiert Wandel in 8 Stufen. Häufigster Fehler: Stufe 1 (Dringlichkeit) wird nur auf Führungsebene beschlossen statt im gesamten Unternehmen verankert.',
+  modul_ref: 'm08-change-management-1',
+  synonyme: [],
+});
+
+GLOSSARY.push({
+  term: 'ADKAR-Modell',
+  kurz: 'Individuumszentriertes Change-Modell: Awareness, Desire, Knowledge, Ability, Reinforcement.',
+  erklaerung_markdown: 'Das **ADKAR-Modell** (Prosci) fokussiert auf den einzelnen Menschen im Wandel und eignet sich als Diagnoseinstrument, um präzise zu erkennen, an welchem Punkt eine Veränderung bei einer Person hakt.',
+  modul_ref: 'm08-change-management-1',
+  synonyme: [],
+});
+
+GLOSSARY.push({
+  term: 'Kübler-Ross Change Curve',
+  kurz: 'Emotionale Phasen im Wandel: Schock, Widerstand, Ausprobieren, Erkenntnis, Integration.',
+  erklaerung_markdown: 'Ursprünglich für Trauerprozesse entwickelt, beschreibt die **Change Curve** typische emotionale Phasen im organisatorischen Wandel, häufig mit vorübergehendem Leistungseinbruch in der mittleren Phase.',
+  modul_ref: 'm08-change-management-1',
+  synonyme: ['Change Curve'],
+});

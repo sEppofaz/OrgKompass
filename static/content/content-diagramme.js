@@ -291,3 +291,39 @@ DIAGRAMS['raci-matrix'] = function () {
     <text x="286" y="119" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="700">A</text>
   </svg>`;
 };
+
+DIAGRAMS['kotter-8-stufen'] = function () {
+  const stufen = [
+    '1. Dringlichkeit erzeugen',
+    '2. Führungskoalition aufbauen',
+    '3. Vision & Strategie entwickeln',
+    '4. Vision kommunizieren',
+    '5. Mitarbeitende befähigen',
+    '6. Kurzfristige Erfolge sichern',
+    '7. Erfolge konsolidieren',
+    '8. In Kultur verankern',
+  ];
+  const rows = stufen.map((s, i) => {
+    const y = 6 + i * 24;
+    return `<rect x="20" y="${y}" width="280" height="20" rx="5" fill="${i === 7 ? 'var(--bg2)' : 'none'}" stroke="var(--border)" stroke-width="1.2"/>
+    <text x="30" y="${y + 14}" fill="var(--text)" font-size="9.5">${s}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 320 204" role="img" aria-label="Kotters 8-Stufen-Modell">${rows}</svg>`;
+};
+
+DIAGRAMS['change-curve'] = function () {
+  return `<svg viewBox="0 0 320 200" role="img" aria-label="Kübler-Ross Change Curve">
+    <line x1="30" y1="12" x2="30" y2="165" stroke="var(--border)" stroke-width="1.2"/>
+    <line x1="30" y1="165" x2="310" y2="165" stroke="var(--border)" stroke-width="1.2"/>
+    <text x="30" y="8" fill="var(--muted)" font-size="9">Leistung/Emotion</text>
+    <text x="300" y="178" text-anchor="end" fill="var(--muted)" font-size="9">Zeit →</text>
+
+    <path d="M40,70 C90,95 120,150 160,155 C200,150 250,90 295,55" fill="none" stroke="var(--icon)" stroke-width="2"/>
+
+    <text x="40" y="188" text-anchor="middle" fill="var(--muted)" font-size="8">Schock</text>
+    <text x="105" y="188" text-anchor="middle" fill="var(--muted)" font-size="8">Widerstand</text>
+    <text x="160" y="198" text-anchor="middle" fill="var(--muted)" font-size="8">Ausprobieren</text>
+    <text x="225" y="188" text-anchor="middle" fill="var(--muted)" font-size="8">Erkenntnis</text>
+    <text x="290" y="188" text-anchor="middle" fill="var(--muted)" font-size="8">Integration</text>
+  </svg>`;
+};
