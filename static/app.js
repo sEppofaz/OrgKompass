@@ -457,15 +457,22 @@ function renderQuiz() {
         ${icon('chevron-right', 20)}
       </button>
     ` : '';
-    const items = MODULES.map((m) => `
+    const items = MODULES.map((m) => {
+      const s = moduleQuizStats(m);
+      let desc;
+      if (s.offenCount === 0) desc = `${s.total} Fragen · alle gemeistert`;
+      else if (s.offenCount === s.total) desc = `${s.total} Fragen`;
+      else desc = `${s.offenCount} von ${s.total} noch offen`;
+      return `
       <button class="card module-card" data-quiz-module="${m.id}">
         <div>
           <div class="module-card-title">${m.titel}</div>
-          <div class="module-card-desc">${m.fragen.length} Fragen</div>
+          <div class="module-card-desc">${desc}</div>
         </div>
         ${quizModuleBadge(m)}
       </button>
-    `).join('');
+    `;
+    }).join('');
     return `<h1 class="page-title">Quiz auswählen</h1><div class="card-list">${dueEntry}${items}</div>`;
   }
   const q = STATE.quiz.questions[STATE.quiz.idx];
@@ -474,7 +481,7 @@ function renderQuiz() {
     <button class="quiz-option" data-idx="${i}">${opt}</button>
   `).join('');
   return `
-    <div class="quiz-progress">Frage ${STATE.quiz.idx + 1} / ${STATE.quiz.questions.length}</div>
+    <div class="quiz-progress">${STATE.quiz.nurOffene ? 'Wiederholung (nur offene Fragen) — ' : ''}Frage ${STATE.quiz.idx + 1} / ${STATE.quiz.questions.length}</div>
     <h2 class="quiz-question">${q.frage}</h2>
     <div class="quiz-options">${options}</div>
   `;
@@ -495,10 +502,27 @@ function renderQuizResults() {
   `;
 }
 
+function moduleQuizStats(m) {
+  const progress = getProgress();
+  const alle = m.fragen.filter((q) => q.typ === 'multiple-choice');
+  const offen = alle.filter((q) => {
+    const e = progress[q.id];
+    return !(e && e.ease >= 2.0 && e.streakCorrect >= 2);
+  });
+  return { total: alle.length, offenCount: offen.length };
+}
+
 function startQuiz(moduleId) {
   const m = MODULES.find((x) => x.id === moduleId);
   if (!m) return;
-  STATE.quiz = { moduleId, questions: m.fragen.filter((q) => q.typ === 'multiple-choice'), idx: 0, score: 0 };
+  const progress = getProgress();
+  const alle = m.fragen.filter((q) => q.typ === 'multiple-choice');
+  const offen = alle.filter((q) => {
+    const e = progress[q.id];
+    return !(e && e.ease >= 2.0 && e.streakCorrect >= 2);
+  });
+  const nurOffene = offen.length > 0 && offen.length < alle.length;
+  STATE.quiz = { moduleId, questions: nurOffene ? offen : alle, idx: 0, score: 0, nurOffene };
   render();
 }
 
