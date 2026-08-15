@@ -9,7 +9,7 @@ Lern-App für Organisationsberatung (PWA + Flask-Backend). Übergeordnete Regeln
 - **Lokaler Pfad:** `~/Dropbox/Apps/Claude/OrgKompass/`
 - **Server:** `/opt/orgkompass/` (Owner `webhook:webhook`), systemd `orgkompass.service`, Port **5007**
 - **Stack:** Vanilla-JS-PWA (kein Framework/Build-Step) + Flask-Backend (Login-Schutz + Claude-API-Proxy + Dropbox-Speicherung + Notizen/Telegram-Erinnerungen)
-- **Stand:** Alle 6 Phasen fertig + Notizen-Feature (Stand 2026-08-14). Einziger offener Punkt: Redesign-Verfeinerung (eigenes Todo, s. `CLAUDE.md`-Design-System-Abschnitt).
+- **Stand:** Alle 6 Phasen fertig + Notizen-Feature + Lese-/Quiz-Fortschritts-Visualisierung (Stand 2026-08-15, v2.3). Einziger offener Punkt: Redesign-Verfeinerung (eigenes Todo, s. `CLAUDE.md`-Design-System-Abschnitt).
 
 ## Architektur
 
@@ -43,6 +43,14 @@ Nach jeder Änderung an `check_erinnerungen.py`/`notizen_store.py`: kein Neustar
 - **Lernpfad-Empfehlung:** Themenfelder nach Einstufungs-Score aufsteigend sortiert (größter Nachholbedarf zuerst), zusätzlich `themenfeldCurrentScore()` als „aktuell gemeistert"-Vergleichswert (rekonstruiert **alle** Fragen mit demselben `themenfeld`-Tag über alle Module hinweg, nicht nur die 2 ursprünglichen Diagnostik-Fragen — bildet den tatsächlichen aktuellen Lernstand ab, nicht nur den Diagnostik-Schnappschuss).
 - **Fällige Wiederholungen:** `getDueQuestions()` nutzt das seit Phase 1 bestehende SM-2-`nextReview`-Feld (war bis Phase 5 nirgends in der UI nutzbar). Neuer Quiz-Modus im Quiz-Tab (`startDueReviewQuiz()`), `STATE.quiz.moduleId = 'wiederholung'` als Sonderwert (kein echtes Modul).
 - **UI-Ort:** Einstufungstest lebt **innerhalb des Fortschritt-Tabs** (kein eigener Bottom-Tab), umgeschaltet über `STATE.einstufung` (analog zu `STATE.quiz`, aber komplett getrennter State/Render-Pfad `renderEinstufungstest()`/`answerEinstufung()`).
+- **„Gemeistert"-Kriterium wird jetzt in der UI erklärt** (Josef-Fund 2026-08-15, s. Pitfall unten): Text bei der „X/Y Fragen gemeistert"-Karte im Fortschritt-Tab.
+
+## Lese-/Quiz-Fortschritts-Visualisierung in den Modul-Listen (2026-08-15, v2.3)
+
+- **Lernen-Tab:** dünner Fortschrittsbalken (Akzent-Gradient) am unteren Rand jeder Modul-Bubble, zeigt den **Lese-Fortschritt** (nicht den Quiz-Fortschritt). Datenquelle: neuer localStorage-Key `ok_read` (`{moduleId: [abschnittId, ...]}`), befüllt von `setupReadTracking()` — ein `IntersectionObserver` (threshold 0.4) pro `.section-block` in der Moduldetailansicht, wird in `wireEvents()` bei jedem Render neu aufgesetzt (vorheriger Observer wird vorher `disconnect()`ed, sonst laufen mehrere parallel). `moduleReadStats(m)` liefert `{count, total, pct}` für `renderLernen()`.
+- **Quiz-Tab:** Badge oben rechts in jeder Modul-Bubble statt Balken (`quizModuleBadge()`, nutzt `ok_progress`/`getProgress()`): grüner Haken-Kreis (`--green`) wenn **alle** Fragen des Moduls gemeistert sind (gleiche 2×-Streak-Definition wie im Fortschritt-Tab), grauer Punkt wenn Fragen begonnen aber offen, kein Badge wenn noch nichts beantwortet.
+- CSS: `.module-card-progress-track/-fill` (Balken), `.module-badge`/`-done`/`-open` (Badge) — `.module-card` braucht dafür `position: relative; overflow: hidden` (war bereits vorhanden).
+- Als neuer BKM-Standard für alle künftigen Lern-Apps dokumentiert: `PKA/BKM/Lern-App-Standards.md` „Fortschritts-Visualisierung in Modul-/Quiz-Listen".
 
 ## nginx-Präfix (`/orgkompass`) — wichtige Architekturentscheidung
 
@@ -58,7 +66,7 @@ Alle Flask-Routen sind selbst mit `/orgkompass`-Präfix registriert (`@app.route
 
 ## SW-Cache-Name
 
-`orgkompass-v20` (in `static/sw.js`, Stand 2026-08-14) — **Korrektur einer früheren Fehlannahme in dieser Datei:** hochzählen bei Änderung an Icons/Manifest/sw.js **UND bei jeder Änderung an bereits gecachten Dateien** (`index.html`, `app.js`, `login.html`, `content-*.js`) — diese stehen alle im `SHELL`-Array und werden für Nicht-HTML-Assets **cache-first** ausgeliefert (`sw.js`-Fetch-Handler). Nur bei **neuen** Dateien (die vorher noch nicht im Cache waren) ist kein Bump nötig. Reine Content-*Ergänzungen* (neues Modul) brauchen trotzdem einen Bump, weil `sw.js` selbst sich ändert (neuer SHELL-Eintrag).
+`orgkompass-v21` (in `static/sw.js`, Stand 2026-08-15) — **Korrektur einer früheren Fehlannahme in dieser Datei:** hochzählen bei Änderung an Icons/Manifest/sw.js **UND bei jeder Änderung an bereits gecachten Dateien** (`index.html`, `app.js`, `login.html`, `content-*.js`) — diese stehen alle im `SHELL`-Array und werden für Nicht-HTML-Assets **cache-first** ausgeliefert (`sw.js`-Fetch-Handler). Nur bei **neuen** Dateien (die vorher noch nicht im Cache waren) ist kein Bump nötig. Reine Content-*Ergänzungen* (neues Modul) brauchen trotzdem einen Bump, weil `sw.js` selbst sich ändert (neuer SHELL-Eintrag).
 
 ## Claude-API-Proxy (`/api/ask`)
 
@@ -95,6 +103,7 @@ ssh root@89.167.104.145 "cd /opt/orgkompass && sudo -u webhook git pull && syste
 - **Safari-Standard-Button-Farbe bei `<button>`-Elementen ohne explizites `color`:** `.module-card-title` hatte keine eigene Textfarbe und erschien blau statt dunkel, weil `.module-card` ein `<button>` ist und Safari dafür eine Standardfarbe (System-Blau) einsetzt, wenn `color` nicht explizit gesetzt ist — Vererbung von `body`/`.card` reicht nicht. **Regel für jedes neue Button-Element:** `color` immer explizit setzen (nicht auf Vererbung verlassen), sonst kann je nach Browser/Plattform ein ungewolltes Blau durchschlagen.
 - **Telegram-Secrets-Keys heißen `TOKEN`/`CHAT_ID`, nicht `TELEGRAM_TOKEN`/`TELEGRAM_CHAT_ID`:** `check_erinnerungen.py` schlug zunächst fehl, weil die falschen Key-Namen angenommen wurden — siehe `PKA/BKM/Telegram-Integration.md` (dort präzisiert) und ADR-007.
 - **Antwortposition-Bias bei Multiple-Choice-Content:** Beim Erstellen aller 154 Fragen (Phase 2/3) lag die richtige Antwort unbewusst zu 93,5 % auf Position 1 oder 2, Position 4 war kein einziges Mal die Lösung (Josef fiel das beim Einstufungstest auf: „Lösung ist immer der zweite Button"). Nachträglich per Skript korrigiert (balancierte Neuzuteilung + semantische Verifikation aller 154 Fragen, dass der Lösungstext exakt erhalten blieb). **Regel für jedes neue Modul/jede neue Frage:** Position der richtigen Antwort bewusst variieren (alle 4 Positionen etwa gleich häufig), nicht der Reihenfolge folgen, in der einem die Optionen einfallen — dieser Bias entsteht leicht unbewusst.
+- **„Gemeistert"-Zähler wirkte wie ein Bug, war aber korrekt:** Josef hatte 14/14 bzw. 15/15 Fragen eines Themenblocks einmal richtig beantwortet, das Fortschritt-Dashboard zeigte trotzdem nur 13/14 bzw. 2/15 „gemeistert" (2026-08-15). Ursache: `moduleProgressStats()`/`renderFortschritt()` zählen nur bei `ease >= 2.0 && streakCorrect >= 2` (2× richtig **in Folge**) als gemeistert — korrekt nach SM-2-Logik, aber nirgends in der UI erklärt. Zusätzlich zählen Antworten aus dem Einstufungstest (`answerEinstufung()`) in denselben `ok_progress`-Store hinein, was die 2/15 erklärte (2 Diagnostik-Fragen aus dem Block waren dort schon einmal richtig beantwortet worden). Fix: Erklärtext direkt bei der „X/Y gemeistert"-Karte ergänzt (v2.3). **Regel:** Jede Mastery-/Fortschritts-Definition, die von „einmal richtig = fertig" abweicht, muss in der UI selbst erklärt werden, nicht nur im Code.
 
 ## Offen: PWA-Standard „Tab-Leiste am unteren Bildschirmrand" nachziehen
 
