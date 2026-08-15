@@ -144,6 +144,41 @@ function recordAnswer(questionId, correct) {
   return entry;
 }
 
+/* ---------- Lese-Fortschritt (Abschnitte, per Scroll-Sichtbarkeit) ---------- */
+
+function getReadProgress() {
+  try { return JSON.parse(localStorage.getItem('ok_read') || '{}'); }
+  catch { return {}; }
+}
+function markAbschnittGelesen(moduleId, abschnittId) {
+  const read = getReadProgress();
+  const gelesen = read[moduleId] || [];
+  if (!gelesen.includes(abschnittId)) {
+    gelesen.push(abschnittId);
+    read[moduleId] = gelesen;
+    localStorage.setItem('ok_read', JSON.stringify(read));
+  }
+}
+function moduleReadStats(m) {
+  const gelesen = getReadProgress()[m.id] || [];
+  const total = m.abschnitte.length;
+  const count = m.abschnitte.filter((a) => gelesen.includes(a.id)).length;
+  return { count, total, pct: total ? Math.round((count / total) * 100) : 0 };
+}
+
+let readObserver = null;
+function setupReadTracking(moduleId) {
+  if (readObserver) readObserver.disconnect();
+  const blocks = document.querySelectorAll('.section-block');
+  if (!blocks.length) return;
+  readObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) markAbschnittGelesen(moduleId, entry.target.id.replace('abschnitt-', ''));
+    });
+  }, { root: document.getElementById('main'), threshold: 0.4 });
+  blocks.forEach((b) => readObserver.observe(b));
+}
+
 /* ---------- Einstufungstest ---------- */
 
 const DIAGNOSTIK_LEVELS = [
@@ -250,15 +285,19 @@ function renderLernen() {
   if (STATE.activeModuleId) {
     return renderModuleDetail(STATE.activeModuleId);
   }
-  const items = MODULES.map((m) => `
+  const items = MODULES.map((m) => {
+    const s = moduleReadStats(m);
+    return `
     <button class="card module-card" data-module="${m.id}">
       <div>
         <div class="module-card-title">${m.bonus ? '⭐ ' : ''}${m.titel}</div>
         <div class="module-card-desc">${m.kurzbeschreibung || ''}</div>
       </div>
       ${icon('chevron-right', 20)}
+      <div class="module-card-progress-track"><div class="module-card-progress-fill" style="width:${s.pct}%"></div></div>
     </button>
-  `).join('');
+  `;
+  }).join('');
   return `<h1 class="page-title">Module</h1><div class="card-list">${items}</div>`;
 }
 
@@ -393,6 +432,19 @@ async function deleteNotiz(id) {
 
 /* ---------- Rendering: Quiz ---------- */
 
+function quizModuleBadge(m) {
+  const progress = getProgress();
+  let started = false;
+  const allMastered = m.fragen.every((q) => {
+    const e = progress[q.id];
+    if (e && e.seen > 0) started = true;
+    return e && e.ease >= 2.0 && e.streakCorrect >= 2;
+  });
+  if (allMastered) return '<span class="module-badge module-badge-done" aria-label="Alle Fragen gemeistert"></span>';
+  if (started) return '<span class="module-badge module-badge-open" aria-label="Fragen noch offen"></span>';
+  return '';
+}
+
 function renderQuiz() {
   if (!STATE.quiz) {
     const dueCount = getDueQuestions().length;
@@ -407,8 +459,11 @@ function renderQuiz() {
     ` : '';
     const items = MODULES.map((m) => `
       <button class="card module-card" data-quiz-module="${m.id}">
-        <div class="module-card-title">${m.titel}</div>
-        <span class="muted">${m.fragen.length} Fragen</span>
+        <div>
+          <div class="module-card-title">${m.titel}</div>
+          <div class="module-card-desc">${m.fragen.length} Fragen</div>
+        </div>
+        ${quizModuleBadge(m)}
       </button>
     `).join('');
     return `<h1 class="page-title">Quiz auswählen</h1><div class="card-list">${dueEntry}${items}</div>`;
@@ -836,6 +891,7 @@ function renderFortschritt() {
     </div>
     <div class="card">
       <div class="module-card-title">${mastered} / ${totalQuestions} Fragen gemeistert</div>
+      <div class="module-card-desc">Als „gemeistert" zählt eine Frage erst, wenn sie 2× hintereinander richtig beantwortet wurde (auch aus dem Einstufungstest) — einmal richtig reicht noch nicht.</div>
     </div>
     ${dueCount ? `
     <div class="card">
@@ -888,6 +944,7 @@ function wireEvents() {
   );
   const back = document.getElementById('back-to-modules');
   if (back) back.addEventListener('click', () => { STATE.activeModuleId = null; render(); });
+  if (STATE.tab === 'lernen' && STATE.activeModuleId) setupReadTracking(STATE.activeModuleId);
 
   const startFromModule = document.getElementById('start-quiz-from-module');
   if (startFromModule) startFromModule.addEventListener('click', () => {

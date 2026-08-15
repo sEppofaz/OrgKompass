@@ -132,6 +132,14 @@ main {
 .module-card-title { font-weight: 700; letter-spacing: -.005em; font-size: 0.85rem; color: var(--text); }
 .module-card-desc { color: var(--muted); font-size: 0.85rem; margin-top: 3px; line-height: 1.4; }
 .muted { color: var(--muted); }
+.module-card-progress-track { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--border); }
+.module-card-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-soft), var(--accent)); transition: width .3s ease; }
+.module-badge { position: absolute; top: 8px; right: 8px; width: 16px; height: 16px; border-radius: 50%; background: var(--green); }
+.module-badge-done::after {
+  content: ""; position: absolute; left: 5px; top: 3px; width: 4px; height: 8px;
+  border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+}
+.module-badge-open { width: 8px; height: 8px; top: 12px; right: 12px; background: var(--muted); opacity: .5; }
 
 .back-link {
   display: inline-flex; align-items: center; gap: 4px;
@@ -364,7 +372,7 @@ main {
     </div>
     <p>OrgKompass ist deine Lern-App für Organisationsberatung — 12 Module mit Lerneinheiten, Quiz, Volltextsuche und durchsuchbarem Glossar zu Reorganisation, Strukturgestaltung, Funktionsbewertung, Change Management, Analyse-Methoden sowie internationalen und agilen Organisationsformen. Der Einstufungstest zeigt deinen Lernpfad je Themenfeld, das Fortschritts-Dashboard den Stand je Modul inkl. fälliger Wiederholungen. Im Notizen-Tab hältst du eigene Gedanken fest, optional als To-Do mit Telegram-Erinnerung. Die Frage-Funktion beantwortet fachliche Fragen per Claude und speichert den Verlauf geräteübergreifend.</p>
     <button class="btn-logout" id="logout-btn">Abmelden</button>
-    <p class="version-line">Version 2.2 · 2026-08-14</p>
+    <p class="version-line">Version 2.3 · 2026-08-15 · a sEpp-App</p>
   </div>
 </div>
 
