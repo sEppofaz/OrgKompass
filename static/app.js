@@ -304,6 +304,8 @@ function renderLernen() {
 function renderModuleDetail(moduleId) {
   const m = MODULES.find((x) => x.id === moduleId);
   if (!m) return '<p>Modul nicht gefunden.</p>';
+  const idx = MODULES.findIndex((x) => x.id === moduleId);
+  const next = MODULES[idx + 1];
   const sections = m.abschnitte.map((a) => `
     <div class="section-block" id="abschnitt-${a.id}">
       <div class="markdown">${renderMarkdown(a.inhalt_markdown)}</div>
@@ -311,10 +313,14 @@ function renderModuleDetail(moduleId) {
     </div>
   `).join('');
   return `
-    <button class="back-link" id="back-to-modules">${icon('chevron-right', 16)} zurück</button>
+    <button class="back-link" data-back-to-modules>${icon('chevron-right', 16)} zurück</button>
     <h1 class="page-title">${m.titel}</h1>
     ${sections}
     <button class="btn-primary" id="start-quiz-from-module">Quiz zu diesem Modul starten</button>
+    <div class="module-nav-footer">
+      <button class="back-link" data-back-to-modules>${icon('chevron-right', 16)} zurück</button>
+      ${next ? `<button class="back-link module-nav-next" data-next-module="${next.id}">weiter: ${next.titel} ${icon('chevron-right', 16)}</button>` : ''}
+    </div>
   `;
 }
 
@@ -966,8 +972,16 @@ function wireEvents() {
   document.querySelectorAll('[data-module]').forEach((el) =>
     el.addEventListener('click', () => { STATE.activeModuleId = el.dataset.module; render(); })
   );
-  const back = document.getElementById('back-to-modules');
-  if (back) back.addEventListener('click', () => { STATE.activeModuleId = null; render(); });
+  document.querySelectorAll('[data-back-to-modules]').forEach((el) =>
+    el.addEventListener('click', () => { STATE.activeModuleId = null; render(); })
+  );
+  document.querySelectorAll('[data-next-module]').forEach((el) =>
+    el.addEventListener('click', () => {
+      STATE.activeModuleId = el.dataset.nextModule;
+      render();
+      document.getElementById('main').scrollTo({ top: 0 });
+    })
+  );
   if (STATE.tab === 'lernen' && STATE.activeModuleId) setupReadTracking(STATE.activeModuleId);
 
   const startFromModule = document.getElementById('start-quiz-from-module');

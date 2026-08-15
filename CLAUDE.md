@@ -52,6 +52,7 @@ Nach jeder Änderung an `check_erinnerungen.py`/`notizen_store.py`: kein Neustar
 - **Quiz-Tab:** Badge oben rechts in jeder Modul-Bubble statt Balken (`quizModuleBadge()`, nutzt `ok_progress`/`getProgress()`): grüner Haken-Kreis (`--green`) wenn **alle** Fragen des Moduls gemeistert sind (gleiche 2×-Streak-Definition wie im Fortschritt-Tab), grauer Punkt wenn Fragen begonnen aber offen, kein Badge wenn noch nichts beantwortet.
 - CSS: `.module-card-progress-track/-fill` (Balken), `.module-badge`/`-done`/`-open` (Badge) — `.module-card` braucht dafür `position: relative; overflow: hidden` (war bereits vorhanden).
 - Als neuer BKM-Standard für alle künftigen Lern-Apps dokumentiert: `PKA/BKM/Lern-App-Standards.md` „Fortschritts-Visualisierung in Modul-/Quiz-Listen".
+- **Modul-Navigation am Ende der Moduldetailseite** (`renderModuleDetail()`, seit v2.5): Footer-Zeile mit „zurück"-Link (gleiche Optik wie oben, jetzt über `[data-back-to-modules]` statt fixer ID, da zweimal auf der Seite) und „weiter: {nächstes Modul}"-Link (`[data-next-module]`, springt direkt ins nächste Modul in `MODULES`-Reihenfolge, `main.scrollTo({top:0})` danach). Kein Link beim letzten Modul (`MODULES[idx+1]` ist `undefined`).
 
 ## nginx-Präfix (`/orgkompass`) — wichtige Architekturentscheidung
 
