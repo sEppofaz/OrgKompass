@@ -8,8 +8,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="OrgKompass">
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff" id="theme-color-meta">
 <style>
 :root {
   --bg: #ffffff;
@@ -33,7 +32,7 @@
   --shadow-lg: 0 12px 32px rgba(28,28,30,.14), 0 4px 10px rgba(28,28,30,.06);
 }
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #1c1c1e;
     --bg2: #262629;
     --bg3: #2f2f33;
@@ -54,6 +53,27 @@
     --shadow-md: 0 6px 16px rgba(0,0,0,.35), 0 2px 5px rgba(0,0,0,.2);
     --shadow-lg: 0 14px 32px rgba(0,0,0,.45), 0 4px 10px rgba(0,0,0,.25);
   }
+}
+:root[data-theme="dark"] {
+  --bg: #1c1c1e;
+  --bg2: #262629;
+  --bg3: #2f2f33;
+  --border: #3a3a3c;
+  --text: #f5f5f7;
+  --muted: #98989d;
+  --icon: #98989d;
+  --accent: #f5f5f7;
+  --accent-soft: #d8d8dc;
+  --accent-text: #1c1c1e;
+  --green: #4cd964;
+  --green-bg: #123320;
+  --yellow: #ffb340;
+  --yellow-bg: #3a2a0d;
+  --red: #ff6961;
+  --red-bg: #3a1210;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.3);
+  --shadow-md: 0 6px 16px rgba(0,0,0,.35), 0 2px 5px rgba(0,0,0,.2);
+  --shadow-lg: 0 14px 32px rgba(0,0,0,.45), 0 4px 10px rgba(0,0,0,.25);
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; margin: 0; }
@@ -140,6 +160,23 @@ main {
   border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
 }
 .module-badge-open { width: 8px; height: 8px; top: 12px; right: 12px; background: var(--muted); opacity: .5; }
+
+.module-card-row { position: relative; overflow: hidden; padding: 0; }
+.module-card-tap {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; text-align: left; cursor: pointer; min-height: 44px;
+  background: none; border: none; color: var(--text); -webkit-appearance: none;
+  padding: 16px 18px;
+}
+.module-card-tap:active { background: var(--bg2); }
+.module-card-tap svg { color: var(--icon); flex-shrink: 0; margin-left: 8px; }
+.quiz-all-link {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  background: none; border: none; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: .78rem; font-weight: 500;
+  padding: 9px 18px; min-height: 32px;
+}
+.quiz-all-link:active { background: var(--bg2); }
 
 .back-link {
   display: inline-flex; align-items: center; gap: 4px;
@@ -351,7 +388,23 @@ main {
 }
 .btn-logout:active { transform: scale(.98); }
 .version-line { text-align: center; font-size: .75rem; color: var(--muted); margin-top: 16px; }
+.theme-switch-row { display: flex; align-items: center; justify-content: space-between; margin: 16px 0; font-size: .92rem; font-weight: 500; color: var(--text); }
+.theme-switch { width: 46px; height: 26px; border-radius: 13px; background: var(--border); border: none; position: relative; padding: 0; cursor: pointer; transition: background .2s ease; flex-shrink: 0; -webkit-appearance: none; }
+.theme-switch[aria-checked="true"] { background: var(--accent); }
+.theme-switch-knob { position: absolute; top: 2px; left: 2px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: var(--shadow-sm); transition: transform .2s ease; }
+.theme-switch[aria-checked="true"] .theme-switch-knob { transform: translateX(20px); }
 </style>
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem('ok_theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    var dark = t ? t === 'dark' : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    var meta = document.getElementById('theme-color-meta');
+    if (meta) meta.setAttribute('content', dark ? '#1c1c1e' : '#ffffff');
+  } catch (e) {}
+})();
+</script>
 </head>
 <body>
 
@@ -374,8 +427,12 @@ main {
       <button id="info-close" style="background:none;border:none;color:var(--muted)">✕</button>
     </div>
     <p>OrgKompass ist deine Lern-App für Organisationsberatung — 12 Module mit Lerneinheiten, Quiz, Volltextsuche und durchsuchbarem Glossar zu Reorganisation, Strukturgestaltung, Funktionsbewertung, Change Management, Analyse-Methoden sowie internationalen und agilen Organisationsformen. Der Einstufungstest zeigt deinen Lernpfad je Themenfeld, das Fortschritts-Dashboard den Stand je Modul inkl. fälliger Wiederholungen. Im Notizen-Tab hältst du eigene Gedanken fest, optional als To-Do mit Telegram-Erinnerung. Die Frage-Funktion beantwortet fachliche Fragen per Claude und speichert den Verlauf geräteübergreifend.</p>
+    <div class="theme-switch-row">
+      <span>Dunkelmodus</span>
+      <button class="theme-switch" id="theme-toggle" role="switch" aria-checked="false"><span class="theme-switch-knob"></span></button>
+    </div>
     <button class="btn-logout" id="logout-btn">Abmelden</button>
-    <p class="version-line">Version 2.5 · 2026-08-15 · a sEpp-App</p>
+    <p class="version-line">Version 2.7 · 2026-08-15 · a sEpp-App</p>
   </div>
 </div>
 

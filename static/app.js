@@ -273,7 +273,9 @@ function renderTabBar() {
 
 function switchTab(tabId) {
   STATE.tab = tabId;
+  STATE.activeModuleId = null;
   STATE.quiz = null;
+  STATE.einstufung = null;
   renderTabBar();
   render();
   document.getElementById('main').scrollTo(0, 0);
@@ -469,14 +471,19 @@ function renderQuiz() {
       if (s.offenCount === 0) desc = `${s.total} Fragen · alle gemeistert`;
       else if (s.offenCount === s.total) desc = `${s.total} Fragen`;
       else desc = `${s.offenCount} von ${s.total} noch offen`;
+      const zeigeAlleBtn = s.offenCount > 0 && s.offenCount < s.total;
       return `
-      <button class="card module-card" data-quiz-module="${m.id}">
-        <div>
-          <div class="module-card-title">${m.titel}</div>
-          <div class="module-card-desc">${desc}</div>
-        </div>
+      <div class="card module-card-row">
+        <button class="module-card-tap" data-quiz-module="${m.id}">
+          <div>
+            <div class="module-card-title">${m.titel}</div>
+            <div class="module-card-desc">${desc}</div>
+          </div>
+          ${icon('chevron-right', 20)}
+        </button>
         ${quizModuleBadge(m)}
-      </button>
+        ${zeigeAlleBtn ? `<button class="quiz-all-link" data-quiz-module-all="${m.id}">Alle ${s.total} Fragen üben</button>` : ''}
+      </div>
     `;
     }).join('');
     return `<h1 class="page-title">Quiz auswählen</h1><div class="card-list">${dueEntry}${items}</div>`;
@@ -487,6 +494,7 @@ function renderQuiz() {
     <button class="quiz-option" data-idx="${i}">${opt}</button>
   `).join('');
   return `
+    <button class="back-link" data-quiz-exit>${icon('chevron-right', 16)} zurück</button>
     <div class="quiz-progress">${STATE.quiz.nurOffene ? 'Wiederholung (nur offene Fragen) — ' : ''}Frage ${STATE.quiz.idx + 1} / ${STATE.quiz.questions.length}</div>
     <h2 class="quiz-question">${q.frage}</h2>
     <div class="quiz-options">${options}</div>
@@ -518,7 +526,7 @@ function moduleQuizStats(m) {
   return { total: alle.length, offenCount: offen.length };
 }
 
-function startQuiz(moduleId) {
+function startQuiz(moduleId, opts = {}) {
   const m = MODULES.find((x) => x.id === moduleId);
   if (!m) return;
   const progress = getProgress();
@@ -527,7 +535,7 @@ function startQuiz(moduleId) {
     const e = progress[q.id];
     return !(e && e.ease >= 2.0 && e.streakCorrect >= 2);
   });
-  const nurOffene = offen.length > 0 && offen.length < alle.length;
+  const nurOffene = !opts.erzwingeAlle && offen.length > 0 && offen.length < alle.length;
   STATE.quiz = { moduleId, questions: nurOffene ? offen : alle, idx: 0, score: 0, nurOffene };
   render();
 }
@@ -553,6 +561,7 @@ function answerQuiz(optionIdx) {
   });
 
   setTimeout(() => {
+    if (!STATE.quiz) return;
     STATE.quiz.idx += 1;
     render();
   }, 1200);
@@ -996,6 +1005,12 @@ function wireEvents() {
   document.querySelectorAll('[data-quiz-module]').forEach((el) =>
     el.addEventListener('click', () => startQuiz(el.dataset.quizModule))
   );
+  document.querySelectorAll('[data-quiz-module-all]').forEach((el) =>
+    el.addEventListener('click', () => startQuiz(el.dataset.quizModuleAll, { erzwingeAlle: true }))
+  );
+  document.querySelectorAll('[data-quiz-exit]').forEach((el) =>
+    el.addEventListener('click', () => { STATE.quiz = null; render(); })
+  );
   const dueReviewBtn = document.getElementById('start-due-review');
   if (dueReviewBtn) dueReviewBtn.addEventListener('click', startDueReviewQuiz);
   document.querySelectorAll('.quiz-option').forEach((el, i) =>
@@ -1066,6 +1081,35 @@ function setupInfoSheet() {
   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
   const logoutBtn = document.getElementById('logout-btn');
   if (logoutBtn) logoutBtn.addEventListener('click', () => { window.location.href = '/orgkompass/logout'; });
+  setupThemeToggle();
+}
+
+/* ---------- Dark/Hell-Modus-Umschalter ---------- */
+
+function getStoredTheme() {
+  try { return localStorage.getItem('ok_theme'); } catch { return null; }
+}
+function systemPrefersDark() {
+  return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+}
+function applyTheme(theme) {
+  if (theme === 'light' || theme === 'dark') document.documentElement.setAttribute('data-theme', theme);
+  else document.documentElement.removeAttribute('data-theme');
+  const dark = theme === 'light' ? false : theme === 'dark' ? true : systemPrefersDark();
+  const meta = document.getElementById('theme-color-meta');
+  if (meta) meta.setAttribute('content', dark ? '#1c1c1e' : '#ffffff');
+}
+function setupThemeToggle() {
+  const btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+  const effective = getStoredTheme() || (systemPrefersDark() ? 'dark' : 'light');
+  btn.setAttribute('aria-checked', effective === 'dark' ? 'true' : 'false');
+  btn.addEventListener('click', () => {
+    const next = btn.getAttribute('aria-checked') === 'true' ? 'light' : 'dark';
+    btn.setAttribute('aria-checked', next === 'dark' ? 'true' : 'false');
+    try { localStorage.setItem('ok_theme', next); } catch {}
+    applyTheme(next);
+  });
 }
 
 /* ---------- Scroll-to-Top ---------- */
