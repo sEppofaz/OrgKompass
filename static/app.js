@@ -121,6 +121,17 @@ function getProgress() {
 }
 function saveProgress(p) { localStorage.setItem('ok_progress', JSON.stringify(p)); }
 
+function getLastModuleState() {
+  try { return JSON.parse(localStorage.getItem('ok_module_state') || 'null'); }
+  catch { return null; }
+}
+function saveLastModuleState(moduleId, scrollTop) {
+  try { localStorage.setItem('ok_module_state', JSON.stringify({ moduleId, scrollTop })); } catch {}
+}
+function clearLastModuleState() {
+  try { localStorage.removeItem('ok_module_state'); } catch {}
+}
+
 function recordAnswer(questionId, correct) {
   const progress = getProgress();
   const entry = progress[questionId] || { seen: 0, correct: 0, streakCorrect: 0, interval: 1, ease: 2.3 };
@@ -272,13 +283,24 @@ function renderTabBar() {
 }
 
 function switchTab(tabId) {
+  const goingHome = tabId === 'lernen' && STATE.tab === 'lernen';
   STATE.tab = tabId;
-  STATE.activeModuleId = null;
+  if (goingHome) {
+    STATE.activeModuleId = null;
+    clearLastModuleState();
+  }
   STATE.quiz = null;
   STATE.einstufung = null;
   renderTabBar();
   render();
-  document.getElementById('main').scrollTo(0, 0);
+  const main = document.getElementById('main');
+  if (tabId === 'lernen' && STATE.activeModuleId) {
+    const saved = getLastModuleState();
+    const top = saved && saved.moduleId === STATE.activeModuleId ? saved.scrollTop : 0;
+    requestAnimationFrame(() => main.scrollTo(0, top));
+  } else {
+    main.scrollTo(0, 0);
+  }
 }
 
 /* ---------- Rendering: Lernen ---------- */
@@ -982,7 +1004,7 @@ function wireEvents() {
     el.addEventListener('click', () => { STATE.activeModuleId = el.dataset.module; render(); })
   );
   document.querySelectorAll('[data-back-to-modules]').forEach((el) =>
-    el.addEventListener('click', () => { STATE.activeModuleId = null; render(); })
+    el.addEventListener('click', () => { STATE.activeModuleId = null; clearLastModuleState(); render(); })
   );
   document.querySelectorAll('[data-next-module]').forEach((el) =>
     el.addEventListener('click', () => {
@@ -1114,12 +1136,20 @@ function setupThemeToggle() {
 
 /* ---------- Scroll-to-Top ---------- */
 
+let moduleScrollSaveScheduled = false;
 function setupScrollToTop() {
   const btn = document.getElementById('back-top');
   btn.innerHTML = icon('arrow-up', 20);
   const main = document.getElementById('main');
   main.addEventListener('scroll', () => {
     btn.classList.toggle('visible', main.scrollTop > 300);
+    if (STATE.tab === 'lernen' && STATE.activeModuleId && !moduleScrollSaveScheduled) {
+      moduleScrollSaveScheduled = true;
+      requestAnimationFrame(() => {
+        saveLastModuleState(STATE.activeModuleId, main.scrollTop);
+        moduleScrollSaveScheduled = false;
+      });
+    }
   });
   btn.addEventListener('click', () => main.scrollTo({ top: 0, behavior: 'smooth' }));
 }
@@ -1154,6 +1184,7 @@ function setupPullToRefresh() {
       STATE.activeModuleId = null;
       STATE.quiz = null;
       STATE.einstufung = null;
+      clearLastModuleState();
       render();
     }
   });
@@ -1162,8 +1193,13 @@ function setupPullToRefresh() {
 /* ---------- Init ---------- */
 
 function init() {
+  const savedModule = getLastModuleState();
+  if (savedModule && savedModule.moduleId) STATE.activeModuleId = savedModule.moduleId;
   renderTabBar();
   render();
+  if (STATE.activeModuleId && savedModule) {
+    requestAnimationFrame(() => document.getElementById('main').scrollTo(0, savedModule.scrollTop));
+  }
   setupInfoSheet();
   setupScrollToTop();
   setupPullToRefresh();
