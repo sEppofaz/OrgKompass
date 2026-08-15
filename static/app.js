@@ -221,7 +221,7 @@ function themenfeldCurrentScore(themenfeld) {
   if (!qs.length) return null;
   const mastered = qs.filter((q) => {
     const e = progress[q.id];
-    return e && e.ease >= 2.0 && e.streakCorrect >= 2;
+    return e && e.streakCorrect >= 1;
   }).length;
   return mastered / qs.length;
 }
@@ -446,7 +446,7 @@ function quizModuleBadge(m) {
   const allMastered = m.fragen.every((q) => {
     const e = progress[q.id];
     if (e && e.seen > 0) started = true;
-    return e && e.ease >= 2.0 && e.streakCorrect >= 2;
+    return e && e.streakCorrect >= 1;
   });
   if (allMastered) return '<span class="module-badge module-badge-done" aria-label="Alle Fragen gemeistert"></span>';
   if (started) return '<span class="module-badge module-badge-open" aria-label="Fragen noch offen"></span>';
@@ -471,7 +471,7 @@ function renderQuiz() {
       if (s.offenCount === 0) desc = `${s.total} Fragen · alle gemeistert`;
       else if (s.offenCount === s.total) desc = `${s.total} Fragen`;
       else desc = `${s.offenCount} von ${s.total} noch offen`;
-      const zeigeAlleBtn = s.offenCount > 0 && s.offenCount < s.total;
+      const zeigeAlleBtn = s.total > 0;
       return `
       <div class="card module-card-row">
         <button class="module-card-tap" data-quiz-module="${m.id}">
@@ -521,7 +521,7 @@ function moduleQuizStats(m) {
   const alle = m.fragen.filter((q) => q.typ === 'multiple-choice');
   const offen = alle.filter((q) => {
     const e = progress[q.id];
-    return !(e && e.ease >= 2.0 && e.streakCorrect >= 2);
+    return !(e && e.streakCorrect >= 1);
   });
   return { total: alle.length, offenCount: offen.length };
 }
@@ -533,7 +533,7 @@ function startQuiz(moduleId, opts = {}) {
   const alle = m.fragen.filter((q) => q.typ === 'multiple-choice');
   const offen = alle.filter((q) => {
     const e = progress[q.id];
-    return !(e && e.ease >= 2.0 && e.streakCorrect >= 2);
+    return !(e && e.streakCorrect >= 1);
   });
   const nurOffene = !opts.erzwingeAlle && offen.length > 0 && offen.length < alle.length;
   STATE.quiz = { moduleId, questions: nurOffene ? offen : alle, idx: 0, score: 0, nurOffene };
@@ -865,7 +865,7 @@ function moduleProgressStats(m) {
   const total = m.fragen.length;
   const mastered = m.fragen.filter((q) => {
     const e = progress[q.id];
-    return e && e.ease >= 2.0 && e.streakCorrect >= 2;
+    return e && e.streakCorrect >= 1;
   }).length;
   return { total, mastered, pct: total ? Math.round((mastered / total) * 100) : 0 };
 }
@@ -876,7 +876,7 @@ function renderFortschritt() {
   const streak = getStreak();
   const progress = getProgress();
   const totalQuestions = MODULES.reduce((sum, m) => sum + m.fragen.length, 0);
-  const mastered = Object.values(progress).filter((e) => e.ease >= 2.0 && e.streakCorrect >= 2).length;
+  const mastered = Object.values(progress).filter((e) => e.streakCorrect >= 1).length;
   const dueCount = getDueQuestions().length;
   const diagnostik = getDiagnostikErgebnis();
 
@@ -930,7 +930,7 @@ function renderFortschritt() {
     </div>
     <div class="card">
       <div class="module-card-title">${mastered} / ${totalQuestions} Fragen gemeistert</div>
-      <div class="module-card-desc">Als „gemeistert" zählt eine Frage erst, wenn sie 2× hintereinander richtig beantwortet wurde (auch aus dem Einstufungstest) — einmal richtig reicht noch nicht.</div>
+      <div class="module-card-desc">Als „gemeistert" zählt eine Frage, sobald sie einmal richtig beantwortet wurde (auch aus dem Einstufungstest) — bei einer späteren falschen Antwort gilt sie wieder als offen.</div>
     </div>
     ${dueCount ? `
     <div class="card">
